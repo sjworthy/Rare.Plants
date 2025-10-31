@@ -2,6 +2,16 @@
 
 library(tidyverse)
 library(popbio)
+library(wesanderson) # for pop colors
+library(cowplot)
+library(lmtest)
+
+wes_palette("AsteroidCity1")
+wes_palette("Rushmore1")[3]
+"#0A9F9D"
+"#E54E21"
+"#6C8645"
+"#35274A"
 
 # read in data
 # data is for 4 species, including year of survey and stem counts
@@ -21,30 +31,30 @@ SPLU = dat %>%
 
 # make a plot for each species
 
-ggplot(ARHI, aes(x = Year, y = Stem.Count))+
-  geom_line(linewidth = 1)+
+ARHI.plot = ggplot(ARHI, aes(x = Year, y = Stem.Count))+
+  geom_line(linewidth = 1, col = "#0A9F9D")+
   geom_point()+
   theme_classic(base_size = 20)+
-  #geom_smooth(color = "pink")+
   ylab("Number of Stems")
-ggplot(CYRE, aes(x = Year, y = Stem.Count))+
-  geom_line(linewidth = 1)+
+CYRE.plot = ggplot(CYRE, aes(x = Year, y = Stem.Count))+
+  geom_line(linewidth = 1, col = "#6C8645")+
   geom_point()+
-  #geom_smooth(color = "pink")+
   theme_classic(base_size = 20)+
   ylab("Number of Stems")
-ggplot(COCA, aes(x = Year, y = Stem.Count))+
-  geom_line(linewidth = 1)+
+COCA.plot = ggplot(COCA, aes(x = Year, y = Stem.Count))+
+  geom_line(linewidth = 1, col = "#E54E21")+
   geom_point()+
-  #geom_smooth(color = "pink")+
   theme_classic(base_size = 20)+
   ylab("Number of Stems")
-ggplot(SPLU, aes(x = Year, y = Stem.Count))+
-  geom_line(linewidth = 1)+
+SPLU.plot = ggplot(SPLU, aes(x = Year, y = Stem.Count))+
+  geom_line(linewidth = 1, col = "#35274A")+
   geom_point()+
-  #geom_smooth(color = "pink")+
   theme_classic(base_size = 20)+
   ylab("Number of Stems")
+
+stem.count.plots = plot_grid(ARHI.plot,COCA.plot,CYRE.plot,SPLU.plot, labels = c("A.","B.","C.","D."))
+
+#ggsave(stem.count.plots, file = "./Plots/stem.counts.plot.pdf", height = 10, width = 10)
 
 # Need to remove extremely small counts within each population
 # (<=10), threshold serves as the minimum for reliable modeling results
@@ -68,7 +78,7 @@ LRR = log(ARHI.2$Stem.Count[-1]/ARHI.2$Stem.Count[-nt])
 ## transformation for unequal variances
 Year.transform <- sqrt(ARHI.2$Year[-1] - ARHI.2$Year[-length(ARHI.2$Year)])
 ARHI.3 = as.data.frame(cbind(LRR,Year.transform))
-ARHI.3$Corrected.LRR = ARHI.3$LRR/ARHI.3$Year.transfom
+ARHI.3$Corrected.LRR = ARHI.3$LRR/ARHI.3$Year.transform
 ARHI.3$Stems.year.T = ARHI.2$Stem.Count[-nt]
 
 ## calculate  log(Nt+1/Nt)
@@ -97,7 +107,6 @@ Year.transform <- sqrt(SPLU.2$Year[-1] - SPLU.2$Year[-length(SPLU.2$Year)])
 SPLU.3 = as.data.frame(cbind(LRR,Year.transform))
 SPLU.3$Corrected.LRR = SPLU.3$LRR/SPLU.3$Year.transform
 SPLU.3$Stems.year.T = SPLU.2$Stem.Count[-nt]
-
 
 #### Estimate mean and variance of growth rates using linear regression ####
 # force the intercept to be 0: enforcing the rule that there can be no change
@@ -190,15 +199,11 @@ ggplot(SPLU.3, aes(x = Year.transform, y = Corrected.LRR))+
   theme_classic(base_size = 20)
 
 #### test for temporal autocorrelation ####
-install.packages("lmtest")
-library(lmtest)
-?dwtest
-
 # Using Durbin-Watson test to measure the strength of autocorrelation in the 
 # regression residuals. Tests the assumptions of the diffusion approximation
 # that the environmental conditions are uncorrelated from one inter-census interval
 # to the next. That is whether a particular interval was good or bad for birth
-# or death is independent of wheter preceding or succeeding intervals were
+# or death is independent of whether preceding or succeeding intervals were
 # good or bad
 
 dwtest(ARHI.mod, alternative = "two.sided") # p = 0.027, DW = 0.95
@@ -282,6 +287,10 @@ df1 = length(COCA.2$LRR)-1
 (df1*anova(COCA.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
 # var CIs = 0.01745289 0.10026035
 
+# testing for autocorrelation again
+dwtest(COCA.mod, alternative = "two.sided") # p = 0.2832, DW = 2.57
+
+
 # remove transition 2 for CYRE
 CYRE.3 = CYRE.2[c(1,3:23),]
 
@@ -294,16 +303,104 @@ df1 = length(CYRE.2$LRR)-1
 (df1*anova(CYRE.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
 # var CIs = 0.06215157 0.20815080
 
+# testing for autocorrelation again
+dwtest(CYRE.mod, alternative = "two.sided") # p = 0.03, DW = 2.86
+
+
+#### Finite population growth rate ####
+# not sure if this is correct
+exp(ARHI.mu) # 0.9801639
+exp(CYRE.mu) # 0.9837947 
+exp(CYRE.mu.2) # 0.9598749
+exp(COCA.mu) # 0.9511653 
+exp(COCA.mu.2) # 0.9144826 
+exp(SPLU.mu) # 1.071792 
+
+#### Continuous rate of increase and average finite rate of increase ####
+
+# continuous rate of increase (rbar), this is per unit time
+# if r = 0.02 this mean 2% increase per year
+ARHI.r = ARHI.mu + ARHI.sig2/2 # 0.04084674 
+ARHI.r.low = ARHI.r + qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
+ARHI.r.high = ARHI.r - qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
+CYRE.r = CYRE.mu + CYRE.sig2/2 # 0.04539237 
+CYRE.r.low = CYRE.r + qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
+CYRE.r.high = CYRE.r - qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
+CYRE.r.2 = CYRE.mu.2 + CYRE.sig2.2/2 # 0.01100171 
+CYRE.r.low.2 = CYRE.r.2 + qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
+CYRE.r.high.2 = CYRE.r.2 - qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
+COCA.r = COCA.mu + COCA.sig2/2 # 0.01144227 
+COCA.r.low = COCA.r + qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
+COCA.r.high = COCA.r - qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
+COCA.r.2 = COCA.mu.2 + COCA.sig2.2/2 # -0.07200738
+COCA.r.low.2 = COCA.r.2 + qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
+COCA.r.high.2 = COCA.r.2 - qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
+SPLU.r = SPLU.mu + SPLU.sig2/2 # 0.211665 
+SPLU.r.low = SPLU.r + qnorm(0.025)*sqrt(SPLU.sig2 * ((1/16) + (SPLU.sig2 / (2 * (13 - 1)))))
+SPLU.r.high = SPLU.r - qnorm(0.025)*sqrt(SPLU.sig2 * ((1/16) + (SPLU.sig2 / (2 * (13 - 1)))))
+
+
+# Average finite rate of increase (lambdabar), discrete time
+# average population growth rate
+
+# lambda 1.02 = 2% increase per time step
+exp(ARHI.r) # 1.041692
+exP(ARHI.r.low)
+exp(ARHI.r.high)
+exp(CYRE.r) # 1.046438
+exp(CYRE.r.low)
+exp(CYRE.r.high)
+exp(CYRE.r.2) # 1.011062 
+exp(CYRE.r.low.2)
+exp(CYRE.r.high.2)
+exp(COCA.r) # 1.011508 
+exp(COCA.r.low)
+exp(COCA.r.high)
+exp(COCA.r.2) # 0.930524 
+exp(COCA.r.low.2)
+exp(COCA.r.high.2)
+exp(SPLU.r) # 1.235734 
+exp(SPLU.r.low)
+exp(SPLU.r.high)
+
+#### probability of reaching extinction ####
+# mu (mean) is positive for SPLU so need to calculate this probability
+# probability is 1 for populations where mean is negative
+
+SPLU.new.sig = (13-1)*SPLU.sig2/13
+SPLU.prob = (10/94)^(2*SPLU.mu/SPLU.new.sig)
+
+# interpretation of CDF when mean is positive:
+# median time to extinction from the CDF is 105 years. This does NOT mean that half 
+# of all realizations will have reached the extinction threshold by 105 years, but
+# instead that half of all realizations that will eventually hit the threshold will
+# have done so by 105 years. 
+# can still calculate the total probability that the population has gone extinct,
+# accounting for ALL possible realizations, if we calculate both the probability that
+# the extinction threshold is eventually reaches and the conditional extinction time CDF.
+
+# probability that extinction will occur multiplied by the conditional probability that
+# extinction will have occurred by 100 years given that it will occur eventually
+
+# formula is probability of extinction multiplied by CDF value at 20 years
+SPLU.prob*1.851535e-01 # 0.05675601 
+
 #### extinction time cumulative distribution function ####
 
 ARHI.cdf = extCDF(ARHI.mu,ARHI.sig2,Nc = 33, Ne = 10, tmax = 50)
 ARHI.cdf = as.data.frame(ARHI.cdf)
 ARHI.cdf$Years = 1:50
 
+x_at_half <- ARHI.cdf %>%
+  filter(abs(ARHI.cdf - 0.5) == min(abs(ARHI.cdf - 0.5))) %>%
+  pull(Years)
+
 ggplot(ARHI.cdf, aes(y = ARHI.cdf, x = Years))+
   geom_line()+
+  geom_segment(aes(x = 0, y = 0.5, xend = x_at_half, yend = 0.5), size = 0.8) +
+  geom_segment(aes(x = x_at_half, y = 0, xend = x_at_half, yend = 0.5), size = 0.8) +
   ylim(0.0,1.0)+
-  theme_classic(base_size = 22)+
+  theme_classic(base_size = 20)+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
@@ -316,7 +413,7 @@ for (i in 1:length(n) ){
 
 ARHI.countCDF = countCDFxt(mu = ARHI.mu, sig2 = ARHI.sig2, nt = 15,
                            Nc = 33, Ne = 10, tq = 29,
-                           tmax = 50, Nboot = 500, plot = TRUE)
+                           tmax = 50, Nboot = 10000, plot = TRUE)
 
 ggplot(ARHI.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -325,6 +422,9 @@ ggplot(ARHI.countCDF, aes(x = 1:50, y = Gbest))+
   theme_classic(base_size = 22)+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
+
+min(ARHI.countCDF$Gbest[ARHI.countCDF$Gbest != 0
+                        ])
 
 plot(n, exts, type='l', las=1,
      xlab="Current population size",
@@ -405,7 +505,7 @@ SPLU.cdf$Years = 1:50
 ggplot(SPLU.cdf, aes(y = SPLU.cdf, x = Years))+
   geom_line()+
   ylim(0.0,1.0)+
-  theme_classic(base_size = 22)+
+  theme_classic(base_size = 20)+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
@@ -421,8 +521,8 @@ plot(n, exts, type='l', las=1,
      ylab="Probability of quasi-extinction by year 50")
 
 SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 13,
-                           Nc = 94, Ne = 10, tq = 29,
-                           tmax = 50, Nboot = 500, plot = TRUE)
+                           Nc = 94, Ne = 10, tq = 16,
+                           tmax = 50, Nboot = 10000, plot = TRUE)
 
 ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -436,16 +536,22 @@ CYRE.cdf.2 = extCDF(CYRE.mu.2,CYRE.sig2.2,Nc = 53, Ne = 10, tmax = 50)
 CYRE.cdf.2 = as.data.frame(CYRE.cdf.2)
 CYRE.cdf.2$Years = 1:50
 
+x_at_half <- CYRE.cdf.2 %>%
+  filter(abs(CYRE.cdf.2 - 0.5) == min(abs(CYRE.cdf.2 - 0.5))) %>%
+  pull(Years)
+
 ggplot(CYRE.cdf.2, aes(y = CYRE.cdf.2, x = Years))+
   geom_line()+
+  geom_segment(aes(x = 0, y = 0.5, xend = x_at_half, yend = 0.5), size = 0.8) +
+  geom_segment(aes(x = x_at_half, y = 0, xend = x_at_half, yend = 0.5), size = 0.8) +
   ylim(0.0,1.0)+
-  theme_classic(base_size = 22)+
+  theme_classic(base_size = 20)+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
 CYRE.countCDF = countCDFxt(mu = CYRE.mu.2, sig2 = CYRE.sig2.2, nt = 22,
                            Nc = 53, Ne = 10, tq = 43,
-                           tmax = 50, Nboot = 500, plot = TRUE)
+                           tmax = 50, Nboot = 10000, plot = TRUE)
 
 ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -457,10 +563,25 @@ ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
 
 
 COCA.cdf.2 = extCDF(COCA.mu.2,COCA.sig2.2,Nc = 188, Ne = 10, tmax = 50)
+COCA.cdf.2 = as.data.frame(COCA.cdf.2)
+COCA.cdf.2$Years = 1:50
 
-COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 15,
-                           Nc = 188, Ne = 10, tq = 11,
-                           tmax = 50, Nboot = 500, plot = TRUE)
+x_at_half <- COCA.cdf.2 %>%
+  filter(abs(COCA.cdf.2 - 0.5) == min(abs(COCA.cdf.2 - 0.5))) %>%
+  pull(Years)
+
+ggplot(COCA.cdf.2, aes(y = COCA.cdf.2, x = Years))+
+  geom_line()+
+  geom_segment(aes(x = 0, y = 0.5, xend = x_at_half, yend = 0.5), size = 0.8) +
+  geom_segment(aes(x = x_at_half, y = 0, xend = x_at_half, yend = 0.5), size = 0.8) +
+  ylim(0.0,1.0)+
+  theme_classic(base_size = 20)+
+  xlab("Years into the Future")+
+  ylab("Cumulative Probability of Quasi-Extinction")
+
+COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 11,
+                           Nc = 188, Ne = 10, tq = 25,
+                           tmax = 50, Nboot = 10000, plot = TRUE)
 
 ggplot(COCA.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -536,4 +657,90 @@ summary(SPLU.DD.mod) # not significant
 check_normality(SPLU.DD.mod)
 check_heteroskedasticity(SPLU.DD.mod)
 
+#### 20-year simulation to calculate the probability of extinction ####
+# stochastically projected population size 20 years into the future by performing
+# 50 iterations of Nt+1 = Nt*exp(LRR), randomly choosing different LRR value from the
+# observed data for each iteration. We ran 1000 replicate projections of this 20 year sim.
+# to calcualte the probability of extinction. Using the quasi-extinction threshold of
+# 10 individuals, the probability of extinction was the number of replicate projections
+# that fell below 10 individuals divided by 1000.
+# We included a carrying capacity (K) as a ceiling in the projection model by reducing
+# a projected population's size down to K (Nt=K) only when Nt+1 > K. This was done
+# despite no detectable density dependence to prevent population sizes from becoming
+# unrealistically large. The starting population size and K of each replicate projection
+# were the median population size and carrying capacity (calculated as the number of stems*
+# the maximum observed stem density) for all subpopulations monitored.
+
+#carrying capacity
+K = 20868
+
+#loop; 1000 replicate 20-year projections
+for (t in 1:1000) 
+{
+  #pick values from each scenario's distribution
+  rtNL=rnorm(50, NL.mean, NL.sd)
+  rtLH=rnorm(50, LH.mean, LH.sd)
+  
+  #starting population size 
+  n0NL=343
+  n0LH=343
+  
+  #loop; 50-year projection
+  for (n in 1:20) 
+  {
+    n0NL <- n0NL*exp(rtNL[1]) #computes N(t+1) = Nt*exp(LRR); eq(2) in text
+    if (n0NL>=K) {
+      n0NL=K #to bring the total down to  carrying capacity if total exceeds carrying capacity
+    } else {
+      n0NL=n0NL
+    }
+    if (n0NL<1) {
+      n0NL=0 #to set a population as zero if it drops below 1 individual
+    } else {
+      n0NL=n0NL
+    }
+    NNL[n,t]=n0NL
+    n0LH <- n0LH*exp(rtLH[n]) #computes N(t+1) = Nt*exp(LRR); eq(2) in text
+    if (n0LH>=K) {
+      n0LH=K 
+    } else {
+      n0LH=n0LH
+    }
+    if (n0LH<1) {
+      n0LH=0 
+    } else {
+      n0LH=n0LH
+    }
+    NLH[n,t]=n0LH
+  } #end of 50 year projection
+  
+  #capture extinctions
+  if (min(NNL[,t])<=10){ #quasi-extinction threshold  = 10 Ind
+    ExtNL[t]=1
+  } else {
+    ExtNL[t]=0
+  }
+  if (min(NLH[,t])<=10){
+    ExtLH[t]=1
+  } else {
+    ExtLH[t]=0
+  }
+} #end of 1,000 replicates
+
+#calculate the probability of extinction
+probext.NL=sum(ExtNL)/1000 
+probext.LH=sum(ExtLH)/1000
+
+#extract results; each column is one replicate 50-year projection
+write.csv(NNL,"nlboth__Graphing.csv")
+write.csv(NLH,"lD.lhW_Graphing.csv")
+
+
+
+#### climate example in Hartmann_2023 ####
+#### Simulate restoration practices ####
+### Relationship between climate and counts
+# Interesting to evaluate sensitivity of cdf to 
+# Initial population size, extinction threshold,
+# amount of environmental variability, number of time steps
 
