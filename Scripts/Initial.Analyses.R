@@ -5,6 +5,11 @@ library(popbio)
 library(wesanderson) # for pop colors
 library(cowplot)
 library(lmtest)
+library(measurements)
+library(lmerTest)
+library(datawizard)
+library(performance)
+library(MASS)
 
 wes_palette("AsteroidCity1")
 wes_palette("Rushmore1")[3]
@@ -657,87 +662,356 @@ summary(SPLU.DD.mod) # not significant
 check_normality(SPLU.DD.mod)
 check_heteroskedasticity(SPLU.DD.mod)
 
-#### 20-year simulation to calculate the probability of extinction ####
-# stochastically projected population size 20 years into the future by performing
-# 50 iterations of Nt+1 = Nt*exp(LRR), randomly choosing different LRR value from the
-# observed data for each iteration. We ran 1000 replicate projections of this 20 year sim.
-# to calcualte the probability of extinction. Using the quasi-extinction threshold of
-# 10 individuals, the probability of extinction was the number of replicate projections
-# that fell below 10 individuals divided by 1000.
-# We included a carrying capacity (K) as a ceiling in the projection model by reducing
-# a projected population's size down to K (Nt=K) only when Nt+1 > K. This was done
-# despite no detectable density dependence to prevent population sizes from becoming
-# unrealistically large. The starting population size and K of each replicate projection
-# were the median population size and carrying capacity (calculated as the number of stems*
-# the maximum observed stem density) for all subpopulations monitored.
+#### 50-year simulation to calculate the probability of extinction ####
+# follows code from Bernardo et al. 2018
 
-#carrying capacity
-K = 20868
+# LRR mean and sd for distribution
+ARHI.LRR.mean = mean(ARHI.3$Corrected.LRR)
+ARHI.LRR.sd = sd(ARHI.3$Corrected.LRR)
 
-#loop; 1000 replicate 20-year projections
-for (t in 1:1000) 
-{
-  #pick values from each scenario's distribution
-  rtNL=rnorm(50, NL.mean, NL.sd)
-  rtLH=rnorm(50, LH.mean, LH.sd)
+# output files
+ARHI.sim = matrix(NA,nrow = 50, ncol = 10000)
+ARHI.ext = rep(NA,10000)
+
+# loop; 10000 replicate 50-year projections
+for (t in 1:10000){
+
+  # distribution of values to pick from
+  ARHI.LRR.dist=rnorm(50, ARHI.LRR.mean, ARHI.LRR.sd)
   
-  #starting population size 
-  n0NL=343
-  n0LH=343
-  
-  #loop; 50-year projection
-  for (n in 1:20) 
+  # starting population size 
+  ARHI.Nt=33
+
+  # loop; 50-year projection
+  for (n in 1:50) 
   {
-    n0NL <- n0NL*exp(rtNL[1]) #computes N(t+1) = Nt*exp(LRR); eq(2) in text
-    if (n0NL>=K) {
-      n0NL=K #to bring the total down to  carrying capacity if total exceeds carrying capacity
+    Nt1 <- ARHI.Nt*exp(ARHI.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      n0NL=n0NL
+      Nt1=Nt1
     }
-    if (n0NL<1) {
-      n0NL=0 #to set a population as zero if it drops below 1 individual
+    ARHI.sim[n,t]=Nt1
+    } #end of 50 year projection
+  
+  #capture extinctions
+  if (min(ARHI.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
+    ARHI.ext[t]=1
+  } else {
+    ARHI.ext[t]=0
+  }
+} #end of 1,0000 replicates
+
+# calculate the probability of extinction
+ARHI.probext=sum(ARHI.ext)/10000 
+
+#extract results; each column is one replicate 20-year projection
+write.csv(ARHI.sim,"./Formatted.Data/ARHI.sim.graphing.csv")
+
+# LRR mean and sd for distribution
+COCA.LRR.mean = mean(COCA.2$Corrected.LRR)
+COCA.LRR.sd = sd(COCA.2$Corrected.LRR)
+
+# output files
+COCA.sim = matrix(NA,nrow = 50, ncol = 10000)
+COCA.ext = rep(NA,10000)
+
+# loop; 10000 replicate 50-year projections
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  COCA.LRR.dist=rnorm(50, COCA.LRR.mean, COCA.LRR.sd)
+  
+  # starting population size 
+  COCA.Nt=478
+  
+  # loop; 50-year projection
+  for (n in 1:50) 
+  {
+    Nt1 <- COCA.Nt*exp(COCA.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      n0NL=n0NL
+      Nt1=Nt1
     }
-    NNL[n,t]=n0NL
-    n0LH <- n0LH*exp(rtLH[n]) #computes N(t+1) = Nt*exp(LRR); eq(2) in text
-    if (n0LH>=K) {
-      n0LH=K 
-    } else {
-      n0LH=n0LH
-    }
-    if (n0LH<1) {
-      n0LH=0 
-    } else {
-      n0LH=n0LH
-    }
-    NLH[n,t]=n0LH
+    COCA.sim[n,t]=Nt1
   } #end of 50 year projection
   
   #capture extinctions
-  if (min(NNL[,t])<=10){ #quasi-extinction threshold  = 10 Ind
-    ExtNL[t]=1
+  if (min(COCA.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
+    COCA.ext[t]=1
   } else {
-    ExtNL[t]=0
+    COCA.ext[t]=0
   }
-  if (min(NLH[,t])<=10){
-    ExtLH[t]=1
+} #end of 1,0000 replicates
+
+# calculate the probability of extinction
+COCA.probext=sum(COCA.ext)/10000 
+
+#extract results; each column is one replicate 20-year projection
+write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv")
+
+# LRR mean and sd for distribution
+CYRE.LRR.mean = mean(CYRE.2$Corrected.LRR)
+CYRE.LRR.sd = sd(CYRE.2$Corrected.LRR)
+
+# output files
+CYRE.sim = matrix(NA,nrow = 50, ncol = 10000)
+CYRE.ext = rep(NA,10000)
+
+# loop; 10000 replicate 50-year projections
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  CYRE.LRR.dist=rnorm(50, CYRE.LRR.mean, CYRE.LRR.sd)
+  
+  # starting population size 
+  CYRE.Nt=53
+  
+  # loop; 50-year projection
+  for (n in 1:50) 
+  {
+    Nt1 <- CYRE.Nt*exp(CYRE.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
+    } else {
+      Nt1=Nt1
+    }
+    CYRE.sim[n,t]=Nt1
+  } #end of 50 year projection
+  
+  #capture extinctions
+  if (min(CYRE.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
+    CYRE.ext[t]=1
   } else {
-    ExtLH[t]=0
+    CYRE.ext[t]=0
   }
-} #end of 1,000 replicates
+} #end of 1,0000 replicates
 
-#calculate the probability of extinction
-probext.NL=sum(ExtNL)/1000 
-probext.LH=sum(ExtLH)/1000
+# calculate the probability of extinction
+CYRE.probext=sum(CYRE.ext)/10000 
 
-#extract results; each column is one replicate 50-year projection
-write.csv(NNL,"nlboth__Graphing.csv")
-write.csv(NLH,"lD.lhW_Graphing.csv")
+#extract results; each column is one replicate 20-year projection
+write.csv(CYRE.sim,"./Formatted.Data/CYRE.sim.graphing.csv")
+
+# generate SPLU for Nt = 94 and Nt = 2 (the real last recorded value)
+
+# LRR mean and sd for distribution
+SPLU.LRR.mean = mean(SPLU.3$Corrected.LRR)
+SPLU.LRR.sd = sd(SPLU.3$Corrected.LRR)
+
+# output files
+SPLU.sim = matrix(NA,nrow = 50, ncol = 10000)
+SPLU.ext = rep(NA,10000)
+
+# loop; 10000 replicate 50-year projections
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  SPLU.LRR.dist=rnorm(50, SPLU.LRR.mean, SPLU.LRR.sd)
+  
+  # starting population size 
+  SPLU.Nt=94
+  
+  # loop; 50-year projection
+  for (n in 1:50) 
+  {
+    Nt1 <- SPLU.Nt*exp(SPLU.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
+    } else {
+      Nt1=Nt1
+    }
+    SPLU.sim[n,t]=Nt1
+  } #end of 50 year projection
+  
+  #capture extinctions
+  if (min(SPLU.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
+    SPLU.ext[t]=1
+  } else {
+    SPLU.ext[t]=0
+  }
+} #end of 1,0000 replicates
+
+# calculate the probability of extinction
+SPLU.probext=sum(SPLU.ext)/10000 
+
+#extract results; each column is one replicate 20-year projection
+write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.csv")
+
+#### Climate Data Prep ####
+# annual climate year is the year of the survey, so counts in 1994 have 1994 annual climate
+# monthly climate year is the year before the survey so counts in 1994 have climate from July 1993-June 1994
+
+# merge LRR values for all pops into one file
+ARHI.3$Species = "ARHI"
+ARHI.3$Year = ARHI.2[c(1:15),2]
+ARHI.3$Climate.Year = ARHI.3$Year-1
+COCA.2$Species = "COCA"
+COCA.2$Year = COCA[c(1:12),2]
+COCA.2$Climate.Year = COCA.2$Year-1
+CYRE.2$Species = "CYRE"
+CYRE.2$Year = CYRE[c(1:23),2]
+CYRE.2$Climate.Year = CYRE.2$Year-1
+SPLU.3$Species = "SPLU"
+SPLU.3$Year = SPLU[c(1:13),2]
+SPLU.3$Climate.Year = SPLU.3$Year-1
+
+LRR.all = rbind(ARHI.3,COCA.2,CYRE.2,SPLU.3)
+
+# merge all count values for all pops
+counts.all = rbind(ARHI.2,COCA,CYRE,SPLU.2)
+counts.all$Climate.Year = counts.all$Year-1
+
+# read in climate data
+annual.clim = read.csv("./Formatted.Data/annual.climate.csv")
+monthly.clim = read.csv("./Formatted.Data/monthly.climate.csv")
+
+# changing units
+annual.clim$ppt.mm = conv_unit(annual.clim$ppt..inches.,"inch","mm")
+annual.clim$temp.C = conv_unit(annual.clim$tmean..degrees.F.,"F","C")
+colnames(annual.clim)[1]="Year"
+
+monthly.clim$ppt.mm = conv_unit(monthly.clim$ppt..inches.,"inch","mm")
+monthly.clim$temp.C = conv_unit(monthly.clim$tmean..degrees.F.,"F","C")
+
+# calculate yearly values from monthly values. Year is july 1 to June 30
+monthly.clim = monthly.clim %>% 
+  mutate(Date = ym(Date),
+         Year = year(Date),
+         Month = month(Date))
+
+# Assign July-June as climate year
+monthly.clim = monthly.clim %>% 
+  mutate(Climate.Year = ifelse(Month >= 7, Year, Year - 1))
+
+# summarize
+climate.year = monthly.clim %>% 
+  group_by(Species,Climate.Year) %>% 
+  summarise(mean.ppt = mean(ppt.mm),
+            mean.temp = mean(temp.C),
+            sd.temp = sd(temp.C),
+            cv.ppt = (sd(ppt.mm)/mean(ppt.mm))*100)
+
+# merge climate data with LRR data
+LRR.all.annual.clim = left_join(LRR.all,annual.clim, by = c("Species","Year"))
+LRR.all.climate.year = left_join(LRR.all,climate.year, by = c("Species","Climate.Year"))
+
+# merge climate data with count data
+counts.all.annual.clim = left_join(counts.all,annual.clim, by = c("Species","Year"))
+counts.all.climate.year = left_join(counts.all,climate.year, by = c("Species","Climate.Year"))
+
+# scale ppt and temp
+LRR.all.annual.clim = standardise(LRR.all.annual.clim, select = c("ppt.mm","temp.C"), append = TRUE)
+LRR.all.climate.year = standardise(LRR.all.climate.year, select = c("mean.ppt","mean.temp"), append = TRUE)
+counts.all.annual.clim = standardise(counts.all.annual.clim, select = c("ppt.mm","temp.C"), append = TRUE)
+counts.all.climate.year = standardise(counts.all.climate.year, select = c("mean.ppt","mean.temp"), append = TRUE)
+
+#### Climate Models ####
+
+LRR.annual.mod = lmer(Corrected.LRR ~ ppt.mm_z + temp.C_z + (1|Species), data = LRR.all.annual.clim)
+summary(LRR.annual.mod)
+r2(LRR.annual.mod)
+check_model(LRR.annual.mod)
+
+LRR.annual.mod.2 = lmer(Corrected.LRR ~ ppt.mm_z + temp.C_z + I(temp.C_z^2) +(1|Species), data = LRR.all.annual.clim)
+summary(LRR.annual.mod.2)
+AIC(LRR.annual.mod,LRR.annual.mod.2)
+
+LRR.climate.year.mod = lmer(Corrected.LRR ~ mean.ppt_z + mean.temp_z + (1|Species), data = LRR.all.climate.year)
+summary(LRR.climate.year.mod)
+r2(LRR.climate.year.mod)
+check_model(LRR.climate.year.mod)
+
+LRR.climate.year.mod.2 = lmer(Corrected.LRR ~ mean.ppt_z + mean.temp_z + I(mean.temp_z^2) +(1|Species), data = LRR.all.climate.year)
+summary(LRR.annual.mod.2)
+AIC(LRR.climate.year.mod,LRR.annual.mod.2)
+
+counts.annual.mod = glmer.nb(Stem.Count ~ ppt.mm_z + temp.C_z + (1|Species),
+                          data = counts.all.annual.clim)
+summary(counts.annual.mod) # ppt is significant, negative
+r2(counts.annual.mod)
+check_model(counts.annual.mod)
+
+counts.climate.year.mod = glmer.nb(Stem.Count ~ mean.ppt_z + mean.temp_z + (1|Species), data = counts.all.climate.year)
+summary(counts.climate.year.mod)
+r2(counts.climate.year.mod)
+check_model(counts.climate.year.mod)
+
+# species specific models
+split.LRR.annual = split(LRR.all.annual.clim, LRR.all.annual.clim$Species)
+split.LRR.climate.year = split(LRR.all.climate.year, LRR.all.climate.year$Species)
+split.counts.annual = split(counts.all.annual.clim, counts.all.annual.clim$Species)
+split.counts.climate.year = split(counts.all.climate.year, counts.all.climate.year$Species)
+
+ARHI.LRR.annual.mod = lm(Corrected.LRR ~ ppt.mm_z + temp.C_z, data = split.LRR.annual$ARHI)
+summary(ARHI.LRR.annual.mod)
+check_normality(ARHI.LRR.annual.mod)
+check_heteroscedasticity(ARHI.LRR.annual.mod)
+check_outliers(ARHI.LRR.annual.mod)
+check_collinearity(ARHI.LRR.annual.mod)
+check_autocorrelation(ARHI.LRR.annual.mod)
+
+ARHI.LRR.climate.year.mod = lm(Corrected.LRR ~ mean.ppt_z + mean.temp_z, data = split.LRR.climate.year$ARHI)
+summary(ARHI.LRR.climate.year.mod)
+check_normality(ARHI.LRR.climate.year.mod)
+check_heteroscedasticity(ARHI.LRR.climate.year.mod)
+check_outliers(ARHI.LRR.climate.year.mod)
+check_collinearity(ARHI.LRR.climate.year.mod)
+check_autocorrelation(ARHI.LRR.climate.year.mod)# autocorrelated residuals
+
+COCA.LRR.annual.mod = lm(Corrected.LRR ~ ppt.mm_z + temp.C_z, data = split.LRR.annual$COCA)
+summary(COCA.LRR.annual.mod)
+check_normality(COCA.LRR.annual.mod) # not normal
+check_heteroscedasticity(COCA.LRR.annual.mod)
+check_outliers(COCA.LRR.annual.mod)
+check_collinearity(COCA.LRR.annual.mod)
+check_autocorrelation(COCA.LRR.annual.mod)
+
+COCA.LRR.climate.year.mod = lm(Corrected.LRR ~ mean.ppt_z + mean.temp_z, data = split.LRR.climate.year$COCA)
+summary(COCA.LRR.climate.year.mod)
+check_normality(COCA.LRR.climate.year.mod)
+check_heteroscedasticity(COCA.LRR.climate.year.mod)
+check_outliers(COCA.LRR.climate.year.mod)
+check_collinearity(COCA.LRR.climate.year.mod)
+check_autocorrelation(COCA.LRR.climate.year.mod)
+
+CYRE.LRR.annual.mod = lm(Corrected.LRR ~ ppt.mm_z + temp.C_z, data = split.LRR.annual$CYRE)
+summary(CYRE.LRR.annual.mod)
+
+CYRE.LRR.climate.year.mod = lm(Corrected.LRR ~ mean.ppt_z + mean.temp_z, data = split.LRR.climate.year$CYRE)
+summary(CYRE.LRR.climate.year.mod)
+SPLU.LRR.annual.mod = lm(Corrected.LRR ~ ppt.mm_z + temp.C_z, data = split.LRR.annual$SPLU)
+summary(SPLU.LRR.annual.mod) # temperature is significant
+SPLU.LRR.climate.year.mod = lm(Corrected.LRR ~ mean.ppt_z + mean.temp_z, data = split.LRR.climate.year$SPLU)
+summary(SPLU.LRR.climate.year.mod)
+
+ARHI.counts.annual.mod = glm.nb(Stem.Count ~ ppt.mm_z + temp.C_z, data = split.counts.annual$ARHI)
+summary(ARHI.counts.annual.mod)
+check_overdispersion()
+check_zeroinflation()
+check_outliers()
+check_collinearity()
+check_distribution()
 
 
 
-#### climate example in Hartmann_2023 ####
+ARHI.counts.climate.year.mod = glm.nb(Stem.Count ~ mean.ppt_z + mean.temp_z, data = split.counts.climate.year$ARHI)
+summary(ARHI.counts.climate.year.mod)
+COCA.counts.annual.mod = glm.nb(Stem.Count ~ ppt.mm_z + temp.C_z, data = split.counts.annual$COCA)
+summary(COCA.counts.annual.mod)
+COCA.counts.climate.year.mod = glm.nb(Stem.Count ~ mean.ppt_z + mean.temp_z, data = split.counts.climate.year$COCA)
+summary(COCA.counts.climate.year.mod)
+CYRE.counts.annual.mod = glm.nb(Stem.Count ~ ppt.mm_z + temp.C_z, data = split.counts.annual$CYRE)
+summary(CYRE.counts.annual.mod)
+CYRE.counts.climate.year.mod = glm.nb(Stem.Count ~ mean.ppt_z + mean.temp_z, data = split.counts.climate.year$CYRE)
+summary(CYRE.counts.climate.year.mod)
+SPLU.counts.annual.mod = glm.nb(Stem.Count ~ ppt.mm_z + temp.C_z, data = split.counts.annual$SPLU)
+summary(SPLU.counts.annual.mod)
+SPLU.counts.climate.year.mod = glm.nb(Stem.Count ~ mean.ppt_z + mean.temp_z, data = split.counts.climate.year$SPLU)
+summary(SPLU.counts.climate.year.mod)
+
+
 #### Simulate restoration practices ####
 ### Relationship between climate and counts
 # Interesting to evaluate sensitivity of cdf to 
