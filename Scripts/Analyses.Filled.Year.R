@@ -22,7 +22,7 @@ wes_palette("Rushmore1")[3]
 # read in data
 # data is for 4 species, including year of survey and stem counts
 
-dat = read.csv("./Formatted.Data/Rare.Plant.Data.csv")
+dat = read.csv("./Formatted.Data/Rare.Plant.Data.Fill.In.csv")
 
 # split the data
 
@@ -70,7 +70,7 @@ stem.count.plots = plot_grid(ARHI.plot,COCA.plot,CYRE.plot,SPLU.plot, labels = c
 # populations fluctuate mostly due to demographic,
 # not environmental stochasticity (Bernardo et al. 219)
 
-# An issue for ARHI (6 time points) and SPLU (4 time points)
+# An issue for ARHI (11 time points) and SPLU (5 time points)
 
 ARHI.2 = ARHI %>%
   filter(Stem.Count > 10)
@@ -129,38 +129,38 @@ SPLU.3$Stems.year.T = SPLU.2$Stem.Count[-nt]
 ARHI.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = ARHI.3)
 summary(ARHI.mod)
 ARHI.mu = coef(ARHI.mod) # mu = -0.02003551 
-ARHI.sig2 = anova(ARHI.mod)[["Mean Sq"]][2] # variance = 0.1217645
-confint(ARHI.mod,1) # mu CIs = -0.1590133, 0.1189423
+ARHI.sig2 = anova(ARHI.mod)[["Mean Sq"]][2] # variance = 0.1041813
+confint(ARHI.mod,1) # mu CIs = -0.1464918 , 0.1064208
 df1 = length(ARHI.3$LRR)-1
 (df1*anova(ARHI.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06526691 0.30285769
+# var CIs = 0.05866258  0.23414050
 
 COCA.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = COCA.2)
 summary(COCA.mod)
 COCA.mu = coef(COCA.mod) # mu = -0.0500674 
-COCA.sig2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.1230193
-confint(COCA.mod,1) # CIs = -0.2014644 0.1013296
+COCA.sig2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.05725639
+confint(COCA.mod,1) # CIs = -0.1467159  0.04658113 
 df1 = length(COCA.2$LRR)-1
 (df1*anova(COCA.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06173402 0.35463891
+# var CIs = 0.03521609  0.10910368
 
 CYRE.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = CYRE.2)
 summary(CYRE.mod)
 CYRE.mu = coef(CYRE.mod) # mu = -0.01633807  
-CYRE.sig2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.1234609
-confint(CYRE.mod,1) # CIs = -0.1274633 0.09478714
+CYRE.sig2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.06848741
+confint(CYRE.mod,1) # CIs = -0.09687775  0.06420161
 df1 = length(CYRE.2$LRR)-1
 (df1*anova(CYRE.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.07384683 0.24731923
+# var CIs = 0.04656236  0.11063921
 
 SPLU.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = SPLU.3)
 summary(SPLU.mod)
-SPLU.mu = coef(SPLU.mod) # mu = 0.06933172  
-SPLU.sig2 = anova(SPLU.mod)[["Mean Sq"]][2] # variance = 0.2846666
-confint(SPLU.mod,1) # CIs = -0.2212901 0.3599535
+SPLU.mu = coef(SPLU.mod) # mu = -0.02403095  
+SPLU.sig2 = anova(SPLU.mod)[["Mean Sq"]][2] # variance = 0.1696239
+confint(SPLU.mod,1) # CIs = -0.194428  0.1463661
 df1 = length(SPLU.3$LRR)-1
 (df1*anova(SPLU.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.1463791 0.7756956
+# var CIs = 0.1024632  0.3337753
 
 #### Plotting LRRs ####
 
@@ -212,10 +212,10 @@ ggplot(SPLU.3, aes(x = Year.transform, y = Corrected.LRR))+
 # or death is independent of whether preceding or succeeding intervals were
 # good or bad
 
-dwtest(ARHI.mod, alternative = "two.sided") # p = 0.027, DW = 0.95
-dwtest(CYRE.mod, alternative = "two.sided") # p = 0.019, DW = 2.89
-dwtest(COCA.mod, alternative = "two.sided") # p = 0.133, DW = 1.18
-dwtest(SPLU.mod, alternative = "two.sided") # p = 0.281, DW = 1.43
+dwtest(ARHI.mod, alternative = "two.sided") # p = 0.004, DW = 0.78
+dwtest(CYRE.mod, alternative = "two.sided") # p = 0.88, DW = 2.05
+dwtest(COCA.mod, alternative = "two.sided") # p = 0.001, DW = 0.87
+dwtest(SPLU.mod, alternative = "two.sided") # p = 0.062, DW = 1.27
 
 # test for autocorrelation using the residuals the first-order autocorrelation
 # of the residuals
@@ -226,7 +226,7 @@ res <- resid(ARHI.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = 0.42, p = 0.13
+cor.test(res_t, res_t_1) # r = 0.52, p = 0.03
 
 # Get residuals
 res <- resid(CYRE.mod)
@@ -234,7 +234,7 @@ res <- resid(CYRE.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = -0.48, p = 0.02
+cor.test(res_t, res_t_1) # r = -0.03, p = 0.86
 
 # Get residuals
 res <- resid(COCA.mod)
@@ -242,7 +242,7 @@ res <- resid(COCA.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = 0.11, p = 0.74
+cor.test(res_t, res_t_1) # r = 0.42, p = 0.04
 
 # Get residuals
 res <- resid(SPLU.mod)
@@ -250,7 +250,7 @@ res <- resid(SPLU.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = 0.23, p = 0.47
+cor.test(res_t, res_t_1) # r = 0.31, p = 0.15
 
 #### test for outliers ####
 # rstudent gives the studentized residual for each (x,y) pair in the regression
@@ -262,132 +262,109 @@ cor.test(res_t, res_t_1) # r = 0.23, p = 0.47
 # a value of Dffits greater than 2*sqrt(1/q) where q is the number of data points,
 # or transitions, suggests high influence.
 
-influence.measures(ARHI.mod)
-influence.measures(CYRE.mod)
-influence.measures(COCA.mod)
-influence.measures(SPLU.mod)
+influence.measures(ARHI.mod) #17
+influence.measures(CYRE.mod) #4,21
+influence.measures(COCA.mod) #26
+influence.measures(SPLU.mod) #8
 
 # test for outlier in y
-sort(rstudent(ARHI.mod)) # one > 2, 13, none greater than 3
-sort(rstudent(COCA.mod)) # one > 2, 12, yes it's greater than 3
-sort(rstudent(CYRE.mod)) # three > 2, 2,9,10, none greater than 3
-sort(rstudent(SPLU.mod)) # one > 2, 8, none greater than 3
+sort(rstudent(ARHI.mod)) # one > 2, 16, none greater than 3
+sort(rstudent(COCA.mod)) # one > 2, 26, yes it's greater than 3
+sort(rstudent(CYRE.mod)) # three > 2, 4,20,21, two greater than 3 (4,21)
+sort(rstudent(SPLU.mod)) # one > 2, 8, yes it's greater than 3
 
 # test for impact on model prediction
 dffits(ARHI.mod)[dffits(ARHI.mod) > 2*sqrt(1/15)] # none
-dffits(CYRE.mod)[dffits(CYRE.mod) > 2*sqrt(1/23)] # 2
-dffits(COCA.mod)[dffits(COCA.mod) > 2*sqrt(1/12)] # 12
+dffits(CYRE.mod)[dffits(CYRE.mod) > 2*sqrt(1/23)] # 4,21
+dffits(COCA.mod)[dffits(COCA.mod) > 2*sqrt(1/12)] # 26
 dffits(SPLU.mod)[dffits(SPLU.mod) > 2*sqrt(1/13)] # none
 
 #### REDO models removing outliers ####
 # remove transition 12 for COCA
-COCA.3 = COCA.2[c(1:11),]
+COCA.3 = COCA.2[c(1:25),]
 
 # rerun models
 COCA.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = COCA.3)
 summary(COCA.mod)
 COCA.mu.2 = coef(COCA.mod) # mu = -0.08939685
-COCA.sig2.2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.03477893
-confint(COCA.mod,1) # CIs = -0.1725025 -0.006291231
+COCA.sig2.2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.01774943
+confint(COCA.mod,1) # CIs = -0.1443902  -0.03440345
 df1 = length(COCA.2$LRR)-1
 (df1*anova(COCA.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.01745289 0.10026035
+# var CIs = 0.01091695  0.03382204
 
 # testing for autocorrelation again
-dwtest(COCA.mod, alternative = "two.sided") # p = 0.2832, DW = 2.57
+dwtest(COCA.mod, alternative = "two.sided") # p = 0.2259, DW = 1.53
 
 # remove transition 2 for CYRE
-CYRE.3 = CYRE.2[c(1,3:23),]
+CYRE.3 = CYRE.2[c(1:3,5:20,22:43),]
 
 CYRE.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = CYRE.3)
 summary(CYRE.mod)
-CYRE.mu.2 = coef(CYRE.mod) # mu = -0.04095235  
-CYRE.sig2.2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.1039081
-confint(CYRE.mod,1) # CIs = -0.1456448 0.06374014
+CYRE.mu.2 = coef(CYRE.mod) # mu = -0.05384289   
+CYRE.sig2.2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.04078464
+confint(CYRE.mod,1) # CIs = -0.1175868  0.00990105
 df1 = length(CYRE.2$LRR)-1
 (df1*anova(CYRE.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06215157 0.20815080
+# var CIs = 0.02772815  0.06588628
 
 # testing for autocorrelation again
-dwtest(CYRE.mod, alternative = "two.sided") # p = 0.03, DW = 2.86
+dwtest(CYRE.mod, alternative = "two.sided") # p = 0.06, DW = 1.43
 
 #### Finite population growth rate ####
 # not sure if this is correct
 exp(ARHI.mu) # 0.9801639
 exp(CYRE.mu) # 0.9837947 
-exp(CYRE.mu.2) # 0.9598749
+exp(CYRE.mu.2) # 0.947581 
 exp(COCA.mu) # 0.9511653 
 exp(COCA.mu.2) # 0.9144826 
-exp(SPLU.mu) # 1.071792 
+exp(SPLU.mu) # 0.9762555  
 
 #### Continuous rate of increase and average finite rate of increase ####
 
 # continuous rate of increase (rbar), this is per unit time
 # if r = 0.02 this mean 2% increase per year
-ARHI.r = ARHI.mu + ARHI.sig2/2 # 0.04084674 
+ARHI.r = ARHI.mu + ARHI.sig2/2 # 0.03205515  
 ARHI.r.low = ARHI.r + qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
 ARHI.r.high = ARHI.r - qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
-CYRE.r = CYRE.mu + CYRE.sig2/2 # 0.04539237 
+CYRE.r = CYRE.mu + CYRE.sig2/2 # 0.01790564  
 CYRE.r.low = CYRE.r + qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
 CYRE.r.high = CYRE.r - qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
-CYRE.r.2 = CYRE.mu.2 + CYRE.sig2.2/2 # 0.01100171 
+CYRE.r.2 = CYRE.mu.2 + CYRE.sig2.2/2 # -0.03345057  
 CYRE.r.low.2 = CYRE.r.2 + qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
 CYRE.r.high.2 = CYRE.r.2 - qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
-COCA.r = COCA.mu + COCA.sig2/2 # 0.01144227 
+COCA.r = COCA.mu + COCA.sig2/2 # -0.0214392  
 COCA.r.low = COCA.r + qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
 COCA.r.high = COCA.r - qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
-COCA.r.2 = COCA.mu.2 + COCA.sig2.2/2 # -0.07200738
+COCA.r.2 = COCA.mu.2 + COCA.sig2.2/2 # -0.08052213 
 COCA.r.low.2 = COCA.r.2 + qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
 COCA.r.high.2 = COCA.r.2 - qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
-SPLU.r = SPLU.mu + SPLU.sig2/2 # 0.211665 
+SPLU.r = SPLU.mu + SPLU.sig2/2 # 0.060781  
 SPLU.r.low = SPLU.r + qnorm(0.025)*sqrt(SPLU.sig2 * ((1/16) + (SPLU.sig2 / (2 * (13 - 1)))))
 SPLU.r.high = SPLU.r - qnorm(0.025)*sqrt(SPLU.sig2 * ((1/16) + (SPLU.sig2 / (2 * (13 - 1)))))
-
 
 # Average finite rate of increase (lambdabar), discrete time
 # average population growth rate
 
 # lambda 1.02 = 2% increase per time step
-exp(ARHI.r) # 1.041692
+exp(ARHI.r) # 1.032574 
 exp(ARHI.r.low)
 exp(ARHI.r.high)
-exp(CYRE.r) # 1.046438
+exp(CYRE.r) # 1.018067 
 exp(CYRE.r.low)
 exp(CYRE.r.high)
-exp(CYRE.r.2) # 1.011062 
+exp(CYRE.r.2) # 0.9671027  
 exp(CYRE.r.low.2)
 exp(CYRE.r.high.2)
-exp(COCA.r) # 1.011508 
+exp(COCA.r) # 0.978789 
 exp(COCA.r.low)
 exp(COCA.r.high)
-exp(COCA.r.2) # 0.930524 
+exp(COCA.r.2) # 0.9226345  
 exp(COCA.r.low.2)
 exp(COCA.r.high.2)
-exp(SPLU.r) # 1.235734 
+exp(SPLU.r) # 1.062666  
 exp(SPLU.r.low)
 exp(SPLU.r.high)
-
-#### probability of reaching extinction ####
-# mu (mean) is positive for SPLU so need to calculate this probability
-# probability is 1 for populations where mean is negative
-
-SPLU.new.sig = (13-1)*SPLU.sig2/13
-SPLU.prob = (10/94)^(2*SPLU.mu/SPLU.new.sig)
-
-# interpretation of CDF when mean is positive:
-# median time to extinction from the CDF is 105 years. This does NOT mean that half 
-# of all realizations will have reached the extinction threshold by 105 years, but
-# instead that half of all realizations that will eventually hit the threshold will
-# have done so by 105 years. 
-# can still calculate the total probability that the population has gone extinct,
-# accounting for ALL possible realizations, if we calculate both the probability that
-# the extinction threshold is eventually reaches and the conditional extinction time CDF.
-
-# probability that extinction will occur multiplied by the conditional probability that
-# extinction will have occurred by 100 years given that it will occur eventually
-
-# formula is probability of extinction multiplied by CDF value at 50 years
-SPLU.prob*2.757946e-01 # 0.08454067  
 
 #### extinction time cumulative distribution function ####
 
@@ -415,11 +392,9 @@ for (i in 1:length(n) ){
   exts[i] <- ex[50]
 }
 
-ARHI.countCDF = countCDFxt(mu = ARHI.mu, sig2 = ARHI.sig2, nt = 15,
+ARHI.countCDF = countCDFxt(mu = ARHI.mu, sig2 = ARHI.sig2, nt = 18,
                            Nc = 33, Ne = 10, tq = 29,
                            tmax = 50, Nboot = 10000, plot = TRUE)
-ARHI.countCDF$Year = 1:50
-write.csv(ARHI.countCDF, file = "./Formatted.Data/ARHI.diff.graphing.csv")
 
 ggplot(ARHI.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -430,7 +405,7 @@ ggplot(ARHI.countCDF, aes(x = 1:50, y = Gbest))+
   ylab("Cumulative Probability of Quasi-Extinction")
 
 min(ARHI.countCDF$Gbest[ARHI.countCDF$Gbest != 0
-                        ])
+])
 
 plot(n, exts, type='l', las=1,
      xlab="Current population size",
@@ -458,11 +433,9 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-CYRE.countCDF = countCDFxt(mu = CYRE.mu, sig2 = CYRE.sig2, nt = 23,
+CYRE.countCDF = countCDFxt(mu = CYRE.mu, sig2 = CYRE.sig2, nt = 43,
                            Nc = 53, Ne = 10, tq = 43,
                            tmax = 50, Nboot = 500, plot = TRUE)
-CYRE.countCDF$Year = 1:50
-write.csv(CYRE.countCDF, file = "./Formatted.Data/CYRE.diff.graphing.csv")
 
 ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -494,12 +467,9 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-COCA.countCDF = countCDFxt(mu = COCA.mu, sig2 = COCA.sig2, nt = 12,
+COCA.countCDF = countCDFxt(mu = COCA.mu, sig2 = COCA.sig2, nt = 26,
                            Nc = 478, Ne = 10, tq = 26,
                            tmax = 50, Nboot = 500, plot = TRUE)
-COCA.countCDF$Year = 1:50
-write.csv(COCA.countCDF, file = "./Formatted.Data/COCA.diff.graphing.csv")
-
 
 ggplot(COCA.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -509,7 +479,7 @@ ggplot(COCA.countCDF, aes(x = 1:50, y = Gbest))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-SPLU.cdf = extCDF(SPLU.mu,SPLU.sig2,Nc = 94, Ne = 10, tmax = 50)
+SPLU.cdf = extCDF(SPLU.mu,SPLU.sig2,Nc = 17, Ne = 10, tmax = 50)
 SPLU.cdf = as.data.frame(SPLU.cdf)
 SPLU.cdf$Years = 1:50
 
@@ -531,26 +501,9 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 13,
-                           Nc = 94, Ne = 10, tq = 16,
+SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 25,
+                           Nc = 17, Ne = 10, tq = 29,
                            tmax = 50, Nboot = 10000, plot = TRUE)
-SPLU.countCDF$Year = 1:50
-write.csv(SPLU.countCDF, file = "./Formatted.Data/SPLU.diff.graphing.csv")
-
-ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
-  geom_line()+
-  geom_ribbon(aes(ymin = Glo, ymax = Gup), fill = "red", alpha = 0.2)+
-  ylim(0.0,1.0)+
-  theme_classic(base_size = 22)+
-  xlab("Years into the Future")+
-  ylab("Cumulative Probability of Quasi-Extinction")
-
-# using real last census size of 2 in 2023
-SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 13,
-                           Nc = 2, Ne = 10, tq = 29,
-                           tmax = 50, Nboot = 10000, plot = TRUE)
-SPLU.countCDF$Year = 1:50
-write.csv(SPLU.countCDF, file = "./Formatted.Data/SPLU.diff.graphing.n2023.csv")
 
 ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -577,7 +530,7 @@ ggplot(CYRE.cdf.2, aes(y = CYRE.cdf.2, x = Years))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-CYRE.countCDF = countCDFxt(mu = CYRE.mu.2, sig2 = CYRE.sig2.2, nt = 22,
+CYRE.countCDF = countCDFxt(mu = CYRE.mu.2, sig2 = CYRE.sig2.2, nt = 41,
                            Nc = 53, Ne = 10, tq = 43,
                            tmax = 50, Nboot = 10000, plot = TRUE)
 
@@ -589,8 +542,6 @@ ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-CYRE.countCDF$Year = 1:50
-write.csv(CYRE.countCDF, file = "./Formatted.Data/CYRE.outlier.diff.graphing.csv")
 
 COCA.cdf.2 = extCDF(COCA.mu.2,COCA.sig2.2,Nc = 188, Ne = 10, tmax = 50)
 COCA.cdf.2 = as.data.frame(COCA.cdf.2)
@@ -609,12 +560,9 @@ ggplot(COCA.cdf.2, aes(y = COCA.cdf.2, x = Years))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 11,
+COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 25,
                            Nc = 188, Ne = 10, tq = 25,
                            tmax = 50, Nboot = 10000, plot = TRUE)
-
-COCA.countCDF$Year = 1:50
-write.csv(COCA.countCDF, file = "./Formatted.Data/COCA.outlier.diff.graphing.csv")
 
 ggplot(COCA.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -654,37 +602,37 @@ ggplot(SPLU.3, aes(x = Stems.year.T, y = LRR))+
 # some papers do a straight regression
 # others log transform initial population size
 
-cor.test(ARHI.3$LRR,ARHI.3$Stems.year.T) # r = -0.12, p = 0.67
+cor.test(ARHI.3$LRR,ARHI.3$Stems.year.T) # r = -0.07, p = 0.79
 ARHI.DD.mod = lm(LRR ~ log(Stems.year.T), data = ARHI.3)
 summary(ARHI.DD.mod) # not significant
 check_normality(ARHI.DD.mod) # not normal
 check_heteroskedasticity(ARHI.DD.mod)
 
-cor.test(COCA.2$LRR,COCA.2$Stems.year.T) # r = -0.27, p = 0.40
+cor.test(COCA.2$LRR,COCA.2$Stems.year.T) # r = -0.14, p = 0.49
 COCA.DD.mod = lm(LRR ~ log(Stems.year.T), data = COCA.2)
 summary(COCA.DD.mod) # not significant
 check_normality(COCA.DD.mod) # not normal
 check_heteroskedasticity(COCA.DD.mod)
 
-cor.test(COCA.3$LRR,COCA.3$Stems.year.T) # r = 0.06, p = 0.87
+cor.test(COCA.3$LRR,COCA.3$Stems.year.T) # r = 0.26, p = 0.20
 COCA.DD.mod = lm(LRR ~ log(Stems.year.T), data = COCA.3)
 summary(COCA.DD.mod) # not significant
 check_normality(COCA.DD.mod) # not normal
 check_heteroskedasticity(COCA.DD.mod)
 
-cor.test(CYRE.2$LRR,CYRE.2$Stems.year.T) # r = -0.48, p = 0.02
+cor.test(CYRE.2$LRR,CYRE.2$Stems.year.T) # r = -0.19, p = 0.22
 CYRE.DD.mod = lm(LRR ~ log(Stems.year.T), data = CYRE.2)
 summary(CYRE.DD.mod) # not significant
 check_normality(CYRE.DD.mod)
 check_heteroskedasticity(CYRE.DD.mod)
 
-cor.test(CYRE.3$LRR,CYRE.3$Stems.year.T) # r = -0.45, p = 0.04
+cor.test(CYRE.3$LRR,CYRE.3$Stems.year.T) # r = -0.08, p = 0.63
 CYRE.DD.mod = lm(LRR ~ log(Stems.year.T), data = CYRE.3)
 summary(CYRE.DD.mod) # not significant
 check_normality(CYRE.DD.mod)
 check_heteroskedasticity(CYRE.DD.mod)
 
-cor.test(SPLU.3$LRR,SPLU.3$Stems.year.T) # r = -0.40, p = 0.17
+cor.test(SPLU.3$LRR,SPLU.3$Stems.year.T) # r = -0.27, p = 0.20
 SPLU.DD.mod = lm(LRR ~ log(Stems.year.T), data = SPLU.3)
 summary(SPLU.DD.mod) # not significant
 check_normality(SPLU.DD.mod)
@@ -703,24 +651,24 @@ ARHI.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
 for (t in 1:10000){
-
+  
   # distribution of values to pick from
   ARHI.LRR.dist=rnorm(50, ARHI.LRR.mean, ARHI.LRR.sd)
   
   # starting population size 
   ARHI.Nt=33
-
+  
   # loop; 50-year projection
   for (n in 1:50) 
   {
-    ARHI.Nt <- ARHI.Nt*exp(ARHI.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(ARHI.Nt<1) {
-      ARHI.Nt=0 # to set a population as zero if it drops below 1 individual
+    Nt1 <- ARHI.Nt*exp(ARHI.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      ARHI.Nt=ARHI.Nt
+      Nt1=Nt1
     }
-    ARHI.sim[n,t]=ARHI.Nt
-    } #end of 50 year projection
+    ARHI.sim[n,t]=Nt1
+  } #end of 50 year projection
   
   #capture extinctions
   if (min(ARHI.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
@@ -731,7 +679,7 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-ARHI.probext=sum(ARHI.ext)/10000 # 0.7224
+ARHI.probext=sum(ARHI.ext)/10000 
 
 #extract results; each column is one replicate 20-year projection
 write.csv(ARHI.sim,"./Formatted.Data/ARHI.sim.graphing.csv")
@@ -756,13 +704,13 @@ for (t in 1:10000){
   # loop; 50-year projection
   for (n in 1:50) 
   {
-    COCA.Nt <- COCA.Nt*exp(COCA.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(COCA.Nt<1) {
-      COCA.Nt=0 # to set a population as zero if it drops below 1 individual
+    Nt1 <- COCA.Nt*exp(COCA.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      COCA.Nt=COCA.Nt
+      Nt1=Nt1
     }
-    COCA.sim[n,t]=COCA.Nt
+    COCA.sim[n,t]=Nt1
   } #end of 50 year projection
   
   #capture extinctions
@@ -774,7 +722,7 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-COCA.probext=sum(COCA.ext)/10000 # 0.1211
+COCA.probext=sum(COCA.ext)/10000 
 
 #extract results; each column is one replicate 20-year projection
 write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv")
@@ -799,13 +747,13 @@ for (t in 1:10000){
   # loop; 50-year projection
   for (n in 1:50) 
   {
-    CYRE.Nt <- CYRE.Nt*exp(CYRE.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(CYRE.Nt<1) {
-      CYRE.Nt=0 # to set a population as zero if it drops below 1 individual
+    Nt1 <- CYRE.Nt*exp(CYRE.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      CYRE.Nt=CYRE.Nt
+      Nt1=Nt1
     }
-    CYRE.sim[n,t]=CYRE.Nt
+    CYRE.sim[n,t]=Nt1
   } #end of 50 year projection
   
   #capture extinctions
@@ -839,18 +787,18 @@ for (t in 1:10000){
   SPLU.LRR.dist=rnorm(50, SPLU.LRR.mean, SPLU.LRR.sd)
   
   # starting population size 
-  SPLU.Nt=94
+  SPLU.Nt=17
   
   # loop; 50-year projection
   for (n in 1:50) 
   {
-    SPLU.Nt <- SPLU.Nt*exp(SPLU.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(SPLU.Nt<1) {
-      SPLU.Nt=0 # to set a population as zero if it drops below 1 individual
+    Nt1 <- SPLU.Nt*exp(SPLU.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      SPLU.Nt=SPLU.Nt
+      Nt1=Nt1
     }
-    SPLU.sim[n,t]=SPLU.Nt
+    SPLU.sim[n,t]=Nt1
   } #end of 50 year projection
   
   #capture extinctions
@@ -887,13 +835,13 @@ for (t in 1:10000){
   # loop; 50-year projection
   for (n in 1:50) 
   {
-    COCA.Nt <- COCA.Nt*exp(COCA.LRR.dist.2[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(COCA.Nt<1) {
-      COCA.Nt=0 # to set a population as zero if it drops below 1 individual
+    Nt1 <- COCA.Nt*exp(COCA.LRR.dist.2[n]) #computes N(t+1) = Nt*exp(LRR);
+    if(Nt1<1) {
+      Nt1=0 # to set a population as zero if it drops below 1 individual
     } else {
-      COCA.Nt=COCA.Nt
+      Nt1=Nt1
     }
-    COCA.sim.2[n,t]=COCA.Nt
+    COCA.sim.2[n,t]=Nt1
   } #end of 50 year projection
   
   #capture extinctions
@@ -908,95 +856,8 @@ for (t in 1:10000){
 COCA.probext.2=sum(COCA.ext.2)/10000 
 
 #extract results; each column is one replicate 20-year projection
-write.csv(COCA.sim.2,"./Formatted.Data/COCA.outlier.sim.graphing.csv")
+write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv")
 
-# LRR mean and sd for distribution
-CYRE.LRR.mean.2 = mean(CYRE.3$Corrected.LRR)
-CYRE.LRR.sd.2 = sd(CYRE.3$Corrected.LRR)
-
-# output files
-CYRE.sim.2 = matrix(NA,nrow = 50, ncol = 10000)
-CYRE.ext.2 = rep(NA,10000)
-
-# loop; 10000 replicate 50-year projections
-for (t in 1:10000){
-  
-  # distribution of values to pick from
-  CYRE.LRR.dist.2=rnorm(50, CYRE.LRR.mean.2, CYRE.LRR.sd.2)
-  
-  # starting population size 
-  CYRE.Nt=53
-  
-  # loop; 50-year projection
-  for (n in 1:50) 
-  {
-    CYRE.Nt <- CYRE.Nt*exp(CYRE.LRR.dist.2[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(CYRE.Nt<1) {
-      CYRE.Nt=0 # to set a population as zero if it drops below 1 individual
-    } else {
-      CYRE.Nt=CYRE.Nt
-    }
-    CYRE.sim.2[n,t]=CYRE.Nt
-  } #end of 50 year projection
-  
-  #capture extinctions
-  if (min(CYRE.sim.2[,t])<=10){ #quasi-extinction threshold  = 10 Ind
-    CYRE.ext.2[t]=1
-  } else {
-    CYRE.ext.2[t]=0
-  }
-} #end of 1,0000 replicates
-
-# calculate the probability of extinction
-CYRE.probext.2=sum(CYRE.ext.2)/10000 
-
-#extract results; each column is one replicate 20-year projection
-write.csv(CYRE.sim.2,"./Formatted.Data/CYRE.outlier.sim.graphing.csv")
-
-# SPLU with 2023 pop size
-
-# LRR mean and sd for distribution
-SPLU.LRR.mean = mean(SPLU.3$Corrected.LRR)
-SPLU.LRR.sd = sd(SPLU.3$Corrected.LRR)
-
-# output files
-SPLU.sim = matrix(NA,nrow = 50, ncol = 10000)
-SPLU.ext = rep(NA,10000)
-
-# loop; 10000 replicate 50-year projections
-for (t in 1:10000){
-  
-  # distribution of values to pick from
-  SPLU.LRR.dist=rnorm(50, SPLU.LRR.mean, SPLU.LRR.sd)
-  
-  # starting population size 
-  SPLU.Nt=2
-  
-  # loop; 50-year projection
-  for (n in 1:50) 
-  {
-    SPLU.Nt <- SPLU.Nt*exp(SPLU.LRR.dist[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(SPLU.Nt<1) {
-      SPLU.Nt=0 # to set a population as zero if it drops below 1 individual
-    } else {
-      SPLU.Nt=SPLU.Nt
-    }
-    SPLU.sim[n,t]=SPLU.Nt
-  } #end of 50 year projection
-  
-  #capture extinctions
-  if (min(SPLU.sim[,t])<=10){ #quasi-extinction threshold  = 10 Ind
-    SPLU.ext[t]=1
-  } else {
-    SPLU.ext[t]=0
-  }
-} #end of 1,0000 replicates
-
-# calculate the probability of extinction
-SPLU.probext=sum(SPLU.ext)/10000 
-
-#extract results; each column is one replicate 20-year projection
-write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.n2023.csv")
 
 #### Climate Data Prep ####
 # annual climate year is the year of the survey, so counts in 1994 have 1994 annual climate
@@ -1004,16 +865,16 @@ write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.n2023.csv")
 
 # merge LRR values for all pops into one file
 ARHI.3$Species = "ARHI"
-ARHI.3$Year = ARHI.2[c(1:15),2]
+ARHI.3$Year = ARHI.2[c(1:18),2]
 ARHI.3$Climate.Year = ARHI.3$Year-1
 COCA.2$Species = "COCA"
-COCA.2$Year = COCA[c(1:12),2]
+COCA.2$Year = COCA[c(1:26),2]
 COCA.2$Climate.Year = COCA.2$Year-1
 CYRE.2$Species = "CYRE"
-CYRE.2$Year = CYRE[c(1:23),2]
+CYRE.2$Year = CYRE[c(1:43),2]
 CYRE.2$Climate.Year = CYRE.2$Year-1
 SPLU.3$Species = "SPLU"
-SPLU.3$Year = SPLU.2[c(1:13),2]
+SPLU.3$Year = SPLU.2[c(1:24),2]
 SPLU.3$Climate.Year = SPLU.3$Year-1
 
 LRR.all = rbind(ARHI.3,COCA.2,CYRE.2,SPLU.3)
@@ -1091,7 +952,7 @@ LRR.all.season = left_join(LRR.all,all.season.climate, by = c("Species","Climate
 #### Climate Year Models ####
 
 LRR.climate.year.mod = lmer(Corrected.LRR ~ total.ppt_z + mean.temp_z + (1|Species), data = LRR.all.climate.year)
-summary(LRR.climate.year.mod)
+summary(LRR.climate.year.mod) # mean.temp marginal 0.0599
 r2(LRR.climate.year.mod)
 check_model(LRR.climate.year.mod)
 
@@ -1129,7 +990,7 @@ check_collinearity(CYRE.LRR.climate.year.mod)
 check_autocorrelation(CYRE.LRR.climate.year.mod) # autocorrelated residuals
 
 SPLU.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = SPLU.climate.year)
-summary(SPLU.LRR.climate.year.mod) # mean temp is significant 0.012 (negative)
+summary(SPLU.LRR.climate.year.mod) # mean temp significant
 check_normality(SPLU.LRR.climate.year.mod)
 check_heteroscedasticity(SPLU.LRR.climate.year.mod)
 check_collinearity(SPLU.LRR.climate.year.mod)
@@ -1187,137 +1048,10 @@ summary(lm(Corrected.LRR ~ winter.temp_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ winter.temp_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ winter.temp_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ winter.temp_z, data = SPLU.LRR.season))
-# significant, negative 0.0013
+# significant
 
-#### Figure of CDFS and sims ####
-
-# Read in CDF data
-ARHI.cdf = read.csv("./Formatted.Data/ARHI.diff.graphing.csv", row.names = 1)
-ARHI.cdf$Species = "ARHI"
-COCA.cdf = read.csv("./Formatted.Data/COCA.diff.graphing.csv", row.names = 1)
-COCA.cdf$Species = "COCA"
-CYRE.cdf = read.csv("./Formatted.Data/CYRE.diff.graphing.csv", row.names = 1)
-CYRE.cdf$Species = "CYRE"
-SPLU.cdf = read.csv("./Formatted.Data/SPLU.diff.graphing.csv", row.names = 1)
-SPLU.cdf$Species = "SPLU"
-COCA.out.cdf = read.csv("./Formatted.Data/COCA.outlier.diff.graphing.csv", row.names = 1)
-COCA.out.cdf$Species = "COCA.out"
-CYRE.out.cdf = read.csv("./Formatted.Data/CYRE.outlier.diff.graphing.csv", row.names = 1)
-CYRE.out.cdf$Year = 1:50
-CYRE.out.cdf$Species = "CYRE.out"
-SPLU.n.cdf = read.csv("./Formatted.Data/SPLU.diff.graphing.n2023.csv", row.names = 1)
-SPLU.n.cdf$Species = "SPLU.n"
-
-# merge
-dfs <- list(ARHI.cdf, COCA.cdf, CYRE.cdf, SPLU.cdf, COCA.out.cdf, CYRE.out.cdf)
-
-all.cdfs <- reduce(dfs, full_join)
-
-# plot
-ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
-  geom_line()
-
-# read in simulations
-ARHI.sim = read.csv("./Formatted.Data/ARHI.sim.graphing.csv",row.names = 1)
-COCA.sim = read.csv("./Formatted.Data/COCA.sim.graphing.csv",row.names = 1)
-CYRE.sim = read.csv("./Formatted.Data/CYRE.sim.graphing.csv",row.names = 1)
-SPLU.sim = read.csv("./Formatted.Data/SPLU.sim.graphing.csv",row.names = 1)
-COCA.out.sim = read.csv("./Formatted.Data/COCA.outlier.sim.graphing.csv",row.names = 1)
-CYRE.out.sim = read.csv("./Formatted.Data/CYRE.outlier.sim.graphing.csv",row.names = 1)
-SPLU.n.sim = read.csv("./Formatted.Data/SPLU.sim.graphing.n2023.csv",row.names = 1)
-
-ARHI.sim.summ <- ARHI.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-ARHI.sim.summ$Species = "ARHI"
-ARHI.sim.summ$Year = 1:50
-
-COCA.sim.summ <- COCA.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-COCA.sim.summ$Species = "COCA"
-COCA.sim.summ$Year = 1:50
-
-CYRE.sim.summ <- CYRE.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-CYRE.sim.summ$Species = "CYRE"
-CYRE.sim.summ$Year = 1:50
-
-SPLU.sim.summ <- SPLU.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-SPLU.sim.summ$Species = "SPLU"
-SPLU.sim.summ$Year = 1:50
-
-COCA.out.sim.summ <- COCA.out.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-COCA.out.sim.summ$Species = "COCA.out"
-COCA.out.sim.summ$Year = 1:50
-
-CYRE.out.sim.summ <- CYRE.out.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-CYRE.out.sim.summ$Species = "CYRE.out"
-CYRE.out.sim.summ$Year = 1:50
-
-SPLU.n.sim.summ <- SPLU.n.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-
-# merge
-dfs.sim <- list(ARHI.sim.summ, COCA.sim.summ, CYRE.sim.summ, COCA.out.sim.summ, CYRE.out.sim.summ)
-
-all.sims <- reduce(dfs.sim, full_join)
-
-# plot
-ggplot(all.sims, aes(x = Year, y = Mean, color = Species))+
-  geom_line()
-
-
-
-
+#### Simulate restoration practices ####
+# Interesting to evaluate sensitivity of cdf to 
+# Initial population size, extinction threshold,
+# amount of environmental variability, number of time steps
 
