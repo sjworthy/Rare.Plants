@@ -702,6 +702,7 @@ ARHI.sim = matrix(NA,nrow = 50, ncol = 10000)
 ARHI.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
 
   # distribution of values to pick from
@@ -731,10 +732,70 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-ARHI.probext=sum(ARHI.ext)/10000 # 0.7224
+ARHI.probext=sum(ARHI.ext)/10000
+binom.test(7186,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(ARHI.sim,"./Formatted.Data/ARHI.sim.graphing.csv")
+
+# output files
+ARHI.sim.cdf = matrix(NA,nrow = 50, ncol = 10000)
+ARHI.ext.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  ARHI.LRR.dist=rnorm(50, ARHI.LRR.mean, ARHI.LRR.sd)
+  
+  # starting population size 
+  ARHI.Nt=33
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      ARHI.Nt <- 0
+    } else {
+      # project abundance
+      ARHI.Nt <- ARHI.Nt * exp(ARHI.LRR.dist[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (ARHI.Nt < 1) ARHI.Nt <- 0
+    }
+    
+    # store value
+    ARHI.sim.cdf[n, t] <- ARHI.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (ARHI.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      ARHI.ext.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(ARHI.sim.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(ARHI.sim.cdf)
+
+yearly_counts <- rowSums(ARHI.sim.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+ARHI.sim.cdf = as.data.frame(yearly_CI)
+ARHI.sim.cdf$prob = yearly_ext_prob
+
+write.csv(ARHI.sim.cdf, file = "./Formatted.Data/ARHI.sim.cdf.csv")
 
 # LRR mean and sd for distribution
 COCA.LRR.mean = mean(COCA.2$Corrected.LRR)
@@ -745,6 +806,7 @@ COCA.sim = matrix(NA,nrow = 50, ncol = 10000)
 COCA.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -774,10 +836,70 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-COCA.probext=sum(COCA.ext)/10000 # 0.1211
+COCA.probext=sum(COCA.ext)/10000
+binom.test(1193,10000)
 
 #extract results; each column is one replicate 20-year projection
-write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv")
+write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv") 
+
+# output files
+COCA.sim.cdf = matrix(NA,nrow = 50, ncol = 10000)
+COCA.ext.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  COCA.LRR.dist=rnorm(50, COCA.LRR.mean, COCA.LRR.sd)
+  
+  # starting population size 
+  COCA.Nt=478
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      COCA.Nt <- 0
+    } else {
+      # project abundance
+      COCA.Nt <- COCA.Nt * exp(COCA.LRR.dist[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (COCA.Nt < 1) COCA.Nt <- 0
+    }
+    
+    # store value
+    COCA.sim.cdf[n, t] <- COCA.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (COCA.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      COCA.ext.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(COCA.sim.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(COCA.sim.cdf)
+
+yearly_counts <- rowSums(COCA.sim.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+COCA.sim.cdf = as.data.frame(yearly_CI)
+COCA.sim.cdf$prob = yearly_ext_prob
+
+write.csv(COCA.sim.cdf, file = "./Formatted.Data/COCA.sim.cdf.csv")
 
 # LRR mean and sd for distribution
 CYRE.LRR.mean = mean(CYRE.2$Corrected.LRR)
@@ -788,6 +910,7 @@ CYRE.sim = matrix(NA,nrow = 50, ncol = 10000)
 CYRE.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -817,10 +940,70 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-CYRE.probext=sum(CYRE.ext)/10000 
+CYRE.probext=sum(CYRE.ext)/10000
+binom.test(4641,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(CYRE.sim,"./Formatted.Data/CYRE.sim.graphing.csv")
+
+# output files
+CYRE.sim.cdf = matrix(NA,nrow = 50, ncol = 10000)
+CYRE.ext.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  CYRE.LRR.dist=rnorm(50, CYRE.LRR.mean, CYRE.LRR.sd)
+  
+  # starting population size 
+  CYRE.Nt=53
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      CYRE.Nt <- 0
+    } else {
+      # project abundance
+      CYRE.Nt <- CYRE.Nt * exp(CYRE.LRR.dist[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (CYRE.Nt < 1) CYRE.Nt <- 0
+    }
+    
+    # store value
+    CYRE.sim.cdf[n, t] <- CYRE.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (CYRE.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      CYRE.ext.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(CYRE.sim.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(CYRE.sim.cdf)
+
+yearly_counts <- rowSums(CYRE.sim.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+CYRE.sim.cdf = as.data.frame(yearly_CI)
+CYRE.sim.cdf$prob = yearly_ext_prob
+
+write.csv(CYRE.sim.cdf, file = "./Formatted.Data/CYRE.sim.cdf.csv")
 
 # generate SPLU for Nt = 94 and Nt = 2 (the real last recorded value)
 
@@ -833,6 +1016,7 @@ SPLU.sim = matrix(NA,nrow = 50, ncol = 10000)
 SPLU.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -863,9 +1047,69 @@ for (t in 1:10000){
 
 # calculate the probability of extinction
 SPLU.probext=sum(SPLU.ext)/10000 
+binom.test(2049,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.csv")
+
+# output files
+SPLU.sim.cdf = matrix(NA,nrow = 50, ncol = 10000)
+SPLU.ext.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  SPLU.LRR.dist=rnorm(50, SPLU.LRR.mean, SPLU.LRR.sd)
+  
+  # starting population size 
+  SPLU.Nt=94
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      SPLU.Nt <- 0
+    } else {
+      # project abundance
+      SPLU.Nt <- SPLU.Nt * exp(SPLU.LRR.dist[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (SPLU.Nt < 1) SPLU.Nt <- 0
+    }
+    
+    # store value
+    SPLU.sim.cdf[n, t] <- SPLU.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (SPLU.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      SPLU.ext.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(SPLU.sim.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(SPLU.sim.cdf)
+
+yearly_counts <- rowSums(SPLU.sim.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+SPLU.sim.cdf = as.data.frame(yearly_CI)
+SPLU.sim.cdf$prob = yearly_ext_prob
+
+write.csv(SPLU.sim.cdf, file = "./Formatted.Data/SPLU.sim.cdf.csv")
 
 # LRR mean and sd for distribution
 COCA.LRR.mean.2 = mean(COCA.3$Corrected.LRR)
@@ -876,6 +1120,7 @@ COCA.sim.2 = matrix(NA,nrow = 50, ncol = 10000)
 COCA.ext.2 = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -906,9 +1151,69 @@ for (t in 1:10000){
 
 # calculate the probability of extinction
 COCA.probext.2=sum(COCA.ext.2)/10000 
+binom.test(8768,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(COCA.sim.2,"./Formatted.Data/COCA.outlier.sim.graphing.csv")
+
+# output files
+COCA.sim.2.cdf = matrix(NA,nrow = 50, ncol = 10000)
+COCA.ext.2.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  COCA.LRR.dist.2=rnorm(50, COCA.LRR.mean.2, COCA.LRR.sd.2)
+  
+  # starting population size 
+  COCA.Nt=188
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      COCA.Nt <- 0
+    } else {
+      # project abundance
+      COCA.Nt <- COCA.Nt * exp(COCA.LRR.dist.2[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (COCA.Nt < 1) COCA.Nt <- 0
+    }
+    
+    # store value
+    COCA.sim.2.cdf[n, t] <- COCA.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (COCA.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      COCA.ext.2.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(COCA.sim.2.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(COCA.sim.2.cdf)
+
+yearly_counts <- rowSums(COCA.sim.2.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+COCA.2.sim.cdf = as.data.frame(yearly_CI)
+COCA.2.sim.cdf$prob = yearly_ext_prob
+
+write.csv(COCA.2.sim.cdf, file = "./Formatted.Data/COCA.2.sim.cdf.csv")
 
 # LRR mean and sd for distribution
 CYRE.LRR.mean.2 = mean(CYRE.3$Corrected.LRR)
@@ -919,6 +1224,7 @@ CYRE.sim.2 = matrix(NA,nrow = 50, ncol = 10000)
 CYRE.ext.2 = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -949,9 +1255,69 @@ for (t in 1:10000){
 
 # calculate the probability of extinction
 CYRE.probext.2=sum(CYRE.ext.2)/10000 
+binom.test(6819,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(CYRE.sim.2,"./Formatted.Data/CYRE.outlier.sim.graphing.csv")
+
+# output files
+CYRE.sim.2.cdf = matrix(NA,nrow = 50, ncol = 10000)
+CYRE.ext.2.cdf = rep(0,10000)
+
+# loop; 10000 replicate 50-year projections
+set.seed(13)
+for (t in 1:10000){
+  
+  # distribution of values to pick from
+  CYRE.LRR.dist.2=rnorm(50, CYRE.LRR.mean.2, CYRE.LRR.sd.2)
+  
+  # starting population size 
+  CYRE.Nt=53
+  extinct = FALSE
+  
+  # loop; 50-year projection
+  for (n in 1:50) {
+    
+    # if already extinct in a previous year, keep at zero
+    if (extinct) {
+      CYRE.Nt <- 0
+    } else {
+      # project abundance
+      CYRE.Nt <- CYRE.Nt * exp(CYRE.LRR.dist.2[n])
+      
+      # enforce integer quasi-extinction threshold
+      if (CYRE.Nt < 1) CYRE.Nt <- 0
+    }
+    
+    # store value
+    CYRE.sim.2.cdf[n, t] <- CYRE.Nt
+    
+    # check for quasi-extinction (threshold = 10)
+    if (CYRE.Nt <= 10 & !extinct) {
+      extinct <- TRUE
+      CYRE.ext.2.cdf[t] <- 1
+    }
+  }
+}
+
+yearly_ext_prob <- rowMeans(CYRE.sim.2.cdf <= 10)
+yearly_ext_prob
+
+n.reps <- ncol(CYRE.sim.2.cdf)
+
+yearly_counts <- rowSums(CYRE.sim.2.cdf <= 10)
+
+yearly_CI <- t(sapply(yearly_counts, function(k)
+  binom.test(k, n.reps)$conf.int
+))
+
+colnames(yearly_CI) <- c("lower", "upper")
+yearly_CI
+
+CYRE.2.sim.cdf = as.data.frame(yearly_CI)
+CYRE.2.sim.cdf$prob = yearly_ext_prob
+
+write.csv(CYRE.2.sim.cdf, file = "./Formatted.Data/CYRE.2.sim.cdf.csv")
 
 # SPLU with 2023 pop size
 
@@ -1214,110 +1580,76 @@ dfs <- list(ARHI.cdf, COCA.cdf, CYRE.cdf, SPLU.cdf, COCA.out.cdf, CYRE.out.cdf)
 all.cdfs <- reduce(dfs, full_join)
 
 # plot
-ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
-  geom_line()
+cdf.outlier.plot = ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
+  geom_line(aes(linetype = Species))+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "dashed", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction",
+       title = "Diffusion Approximation")+
+ # theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  ylim(0,1)
+cdf.outlier.plot
+
+#ggsave(cdf.outlier.plot, file = "./Plots/cdf.outlier.plot.legend.pdf", height = 8, width = 8)
+#ggsave(cdf.outlier.plot, file = "./Plots/cdf.outlier.plot.pdf", height = 8, width = 8)
+
 
 # read in simulations
-ARHI.sim = read.csv("./Formatted.Data/ARHI.sim.graphing.csv",row.names = 1)
-COCA.sim = read.csv("./Formatted.Data/COCA.sim.graphing.csv",row.names = 1)
-CYRE.sim = read.csv("./Formatted.Data/CYRE.sim.graphing.csv",row.names = 1)
-SPLU.sim = read.csv("./Formatted.Data/SPLU.sim.graphing.csv",row.names = 1)
-COCA.out.sim = read.csv("./Formatted.Data/COCA.outlier.sim.graphing.csv",row.names = 1)
-CYRE.out.sim = read.csv("./Formatted.Data/CYRE.outlier.sim.graphing.csv",row.names = 1)
-SPLU.n.sim = read.csv("./Formatted.Data/SPLU.sim.graphing.n2023.csv",row.names = 1)
-
-ARHI.sim.summ <- ARHI.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-ARHI.sim.summ$Species = "ARHI"
-ARHI.sim.summ$Year = 1:50
-
-COCA.sim.summ <- COCA.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-COCA.sim.summ$Species = "COCA"
-COCA.sim.summ$Year = 1:50
-
-CYRE.sim.summ <- CYRE.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-CYRE.sim.summ$Species = "CYRE"
-CYRE.sim.summ$Year = 1:50
-
-SPLU.sim.summ <- SPLU.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-SPLU.sim.summ$Species = "SPLU"
-SPLU.sim.summ$Year = 1:50
-
-COCA.out.sim.summ <- COCA.out.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-COCA.out.sim.summ$Species = "COCA.out"
-COCA.out.sim.summ$Year = 1:50
-
-CYRE.out.sim.summ <- CYRE.out.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
-CYRE.out.sim.summ$Species = "CYRE.out"
-CYRE.out.sim.summ$Year = 1:50
-
-SPLU.n.sim.summ <- SPLU.n.sim %>%
-  mutate(Year = 1:50) %>%
-  rowwise() %>%
-  summarize(
-    Mean = mean(c_across(starts_with("V")), na.rm = TRUE),
-    Lower = quantile(c_across(starts_with("V")), 0.025, na.rm = TRUE),
-    Upper = quantile(c_across(starts_with("V")), 0.975, na.rm = TRUE)
-  ) %>%
-  ungroup()
+ARHI.sim = read.csv("./Formatted.Data/ARHI.sim.cdf.csv",row.names = 1)
+ARHI.sim$Species = "ARHI"
+ARHI.sim$Year = 1:50
+COCA.sim = read.csv("./Formatted.Data/COCA.sim.cdf.csv",row.names = 1)
+COCA.sim$Species = "COCA"
+COCA.sim$Year = 1:50
+CYRE.sim = read.csv("./Formatted.Data/CYRE.sim.cdf.csv",row.names = 1)
+CYRE.sim$Species = "CYRE"
+CYRE.sim$Year = 1:50
+SPLU.sim = read.csv("./Formatted.Data/SPLU.sim.cdf.csv",row.names = 1)
+SPLU.sim$Species = "SPLU"
+SPLU.sim$Year = 1:50
+COCA.out.sim = read.csv("./Formatted.Data/COCA.2.sim.cdf.csv",row.names = 1)
+COCA.out.sim$Species = "COCA.out"
+COCA.out.sim$Year = 1:50
+CYRE.out.sim = read.csv("./Formatted.Data/CYRE.2.sim.cdf.csv",row.names = 1)
+CYRE.out.sim$Species = "CYRE.out"
+CYRE.out.sim$Year = 1:50
 
 # merge
-dfs.sim <- list(ARHI.sim.summ, COCA.sim.summ, CYRE.sim.summ, COCA.out.sim.summ, CYRE.out.sim.summ)
+dfs.sim <- list(ARHI.sim, COCA.sim, CYRE.sim, COCA.out.sim, CYRE.out.sim, SPLU.sim)
 
 all.sims <- reduce(dfs.sim, full_join)
 
 # plot
-ggplot(all.sims, aes(x = Year, y = Mean, color = Species))+
+ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
   geom_line()
 
+# plot
+sim.outlier.plot = ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
+  geom_line(aes(linetype = Species))+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "dashed", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction", 
+       title = "Stochastic Projection")+
+  theme(legend.position = "none")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  ylim(0,1)
+sim.outlier.plot
 
+#ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.legend.pdf", height = 8, width = 8)
+#ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.pdf", height = 8, width = 8)
 
 
 
