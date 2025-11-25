@@ -975,12 +975,18 @@ check_heteroscedasticity(ARHI.LRR.climate.year.mod)
 check_collinearity(ARHI.LRR.climate.year.mod)
 check_autocorrelation(ARHI.LRR.climate.year.mod)
 
+ARHI.preds = predict(ARHI.LRR.climate.year.mod, interval = "confidence")
+ARHI.climate.year = cbind(ARHI.climate.year,ARHI.preds)
+
 COCA.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year)
 summary(COCA.LRR.climate.year.mod)
 check_normality(COCA.LRR.climate.year.mod)
 check_heteroscedasticity(COCA.LRR.climate.year.mod)
 check_collinearity(COCA.LRR.climate.year.mod)
 check_autocorrelation(COCA.LRR.climate.year.mod)
+
+COCA.preds = predict(COCA.LRR.climate.year.mod, interval = "confidence")
+COCA.climate.year = cbind(COCA.climate.year,COCA.preds)
 
 CYRE.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year)
 summary(CYRE.LRR.climate.year.mod)
@@ -989,12 +995,43 @@ check_heteroscedasticity(CYRE.LRR.climate.year.mod)
 check_collinearity(CYRE.LRR.climate.year.mod)
 check_autocorrelation(CYRE.LRR.climate.year.mod) # autocorrelated residuals
 
+CYRE.preds = predict(CYRE.LRR.climate.year.mod, interval = "confidence")
+CYRE.climate.year = cbind(CYRE.climate.year,CYRE.preds)
+
 SPLU.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = SPLU.climate.year)
 summary(SPLU.LRR.climate.year.mod) # mean temp significant
 check_normality(SPLU.LRR.climate.year.mod)
 check_heteroscedasticity(SPLU.LRR.climate.year.mod)
 check_collinearity(SPLU.LRR.climate.year.mod)
 check_autocorrelation(SPLU.LRR.climate.year.mod)
+
+SPLU.preds = predict(SPLU.LRR.climate.year.mod, interval = "confidence")
+SPLU.climate.year = cbind(SPLU.climate.year,SPLU.preds)
+
+COCA.climate.year.outlier = COCA.climate.year[c(1:25),]
+
+COCA.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year.outlier)
+summary(COCA.LRR.climate.year.mod.outlier)
+check_normality(COCA.LRR.climate.year.mod.outlier)
+check_heteroscedasticity(COCA.LRR.climate.year.mod.outlier)
+check_collinearity(COCA.LRR.climate.year.mod.outlier)
+check_autocorrelation(COCA.LRR.climate.year.mod.outlier)
+
+COCA.preds.outlier = predict(COCA.LRR.climate.year.mod.outlier, interval = "confidence")
+COCA.climate.year.outlier = cbind(COCA.climate.year.outlier,COCA.preds.outlier)
+
+CYRE.climate.year.outlier = CYRE.climate.year[]
+
+CYRE.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year.outlier)
+summary(CYRE.LRR.climate.year.mod.outlier)
+check_normality(CYRE.LRR.climate.year.mod.outlier)
+check_heteroscedasticity(CYRE.LRR.climate.year.mod.outlier)
+check_collinearity(CYRE.LRR.climate.year.mod.outlier)
+check_autocorrelation(CYRE.LRR.climate.year.mod.outlier) # autocorrelated residuals
+
+CYRE.preds.outlier = predict(CYRE.LRR.climate.year.mod.outlier, interval = "confidence")
+CYRE.climate.year.outlier = cbind(CYRE.climate.year.outlier,CYRE.preds.outlier)
+
 
 #### Seasonal climate Models ####
 LRR.seasonal.mod = lmer(Corrected.LRR ~ early.spring.temp_z + late.spring.temp_z +

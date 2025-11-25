@@ -11,6 +11,7 @@ library(datawizard)
 library(performance)
 library(MASS)
 library(corrplot)
+library(effects)
 
 wes_palette("AsteroidCity1")
 wes_palette("Rushmore1")[3]
@@ -1480,12 +1481,24 @@ check_heteroscedasticity(ARHI.LRR.climate.year.mod)
 check_collinearity(ARHI.LRR.climate.year.mod)
 check_autocorrelation(ARHI.LRR.climate.year.mod)
 
+ARHI.effects = as.data.frame(allEffects(ARHI.LRR.climate.year.mod)[["mean.temp_z"]])
+ARHI.effects$Species = "ARHI"
+attr(ARHI.climate.year$mean.temp_z, "scale")
+attr(ARHI.climate.year$mean.temp_z, "center")
+ARHI.effects$mean.temp = ARHI.effects$mean.temp_z*0.8088384+9.374383 
+
 COCA.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year)
 summary(COCA.LRR.climate.year.mod)
 check_normality(COCA.LRR.climate.year.mod)
 check_heteroscedasticity(COCA.LRR.climate.year.mod)
 check_collinearity(COCA.LRR.climate.year.mod)
 check_autocorrelation(COCA.LRR.climate.year.mod)
+
+COCA.effects = as.data.frame(allEffects(COCA.LRR.climate.year.mod)[["mean.temp_z"]])
+COCA.effects$Species = "COCA"
+attr(COCA.climate.year$mean.temp_z, "scale")
+attr(COCA.climate.year$mean.temp_z, "center")
+COCA.effects$mean.temp = COCA.effects$mean.temp_z*0.8757011+9.842207 
 
 CYRE.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year)
 summary(CYRE.LRR.climate.year.mod)
@@ -1494,12 +1507,85 @@ check_heteroscedasticity(CYRE.LRR.climate.year.mod)
 check_collinearity(CYRE.LRR.climate.year.mod)
 check_autocorrelation(CYRE.LRR.climate.year.mod) # autocorrelated residuals
 
+CYRE.effects = as.data.frame(allEffects(CYRE.LRR.climate.year.mod)[["mean.temp_z"]])
+CYRE.effects$Species = "CYRE"
+attr(CYRE.climate.year$mean.temp_z, "scale")
+attr(CYRE.climate.year$mean.temp_z, "center")
+CYRE.effects$mean.temp = CYRE.effects$mean.temp_z*0.8788405+9.636272 
+
 SPLU.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = SPLU.climate.year)
 summary(SPLU.LRR.climate.year.mod) # mean temp is significant 0.012 (negative)
 check_normality(SPLU.LRR.climate.year.mod)
 check_heteroscedasticity(SPLU.LRR.climate.year.mod)
 check_collinearity(SPLU.LRR.climate.year.mod)
 check_autocorrelation(SPLU.LRR.climate.year.mod)
+
+SPLU.effects = as.data.frame(allEffects(SPLU.LRR.climate.year.mod)[["mean.temp_z"]])
+SPLU.effects$Species = "SPLU"
+attr(SPLU.climate.year$mean.temp_z, "scale")
+attr(SPLU.climate.year$mean.temp_z, "center")
+SPLU.effects$mean.temp = SPLU.effects$mean.temp_z*0.9048429+9.583333 
+
+COCA.climate.year.outlier = COCA.climate.year[c(1:11),]
+
+COCA.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year.outlier)
+summary(COCA.LRR.climate.year.mod.outlier)
+check_normality(COCA.LRR.climate.year.mod.outlier)
+check_heteroscedasticity(COCA.LRR.climate.year.mod.outlier)
+check_collinearity(COCA.LRR.climate.year.mod.outlier)
+check_autocorrelation(COCA.LRR.climate.year.mod.outlier) # autocorrelation
+
+COCA.outlier.effects = as.data.frame(allEffects(COCA.LRR.climate.year.mod.outlier)[["mean.temp_z"]])
+COCA.outlier.effects$Species = "COCA.out"
+attr(COCA.climate.year$mean.temp_z, "scale")
+attr(COCA.climate.year$mean.temp_z, "center")
+COCA.outlier.effects$mean.temp = COCA.outlier.effects$mean.temp_z*0.8757011+9.842207 
+COCA.climate.year.outlier$Species = "COCA.out"
+ 
+CYRE.climate.year.outlier = CYRE.climate.year[c(1,3:23),]
+
+CYRE.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year.outlier)
+summary(CYRE.LRR.climate.year.mod.outlier)
+check_normality(CYRE.LRR.climate.year.mod.outlier)
+check_heteroscedasticity(CYRE.LRR.climate.year.mod.outlier)
+check_collinearity(CYRE.LRR.climate.year.mod.outlier)
+check_autocorrelation(CYRE.LRR.climate.year.mod.outlier) # autocorrelated residuals
+
+CYRE.outlier.effects = as.data.frame(allEffects(CYRE.LRR.climate.year.mod.outlier)[["mean.temp_z"]])
+CYRE.outlier.effects$Species = "CYRE.out"
+attr(CYRE.climate.year$mean.temp_z, "scale")
+attr(CYRE.climate.year$mean.temp_z, "center")
+CYRE.outlier.effects$mean.temp = CYRE.outlier.effects$mean.temp_z*0.8788405+9.636272
+CYRE.climate.year.outlier$Species = "CYRE.out"
+
+# merge
+dfs.observed <- list(ARHI.climate.year, COCA.climate.year, CYRE.climate.year, SPLU.climate.year,
+            COCA.climate.year.outlier, CYRE.climate.year.outlier)
+all.observed <- bind_rows(dfs.observed)
+
+dfs.preds = list(ARHI.effects,COCA.effects,CYRE.effects,SPLU.effects,COCA.outlier.effects,CYRE.outlier.effects)
+all.preds <- bind_rows(dfs.preds)
+
+# plot
+climate.year.plot = ggplot(all.preds, aes(x = mean.temp, y = fit, color = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
+  geom_point(data = all.observed, aes(x = mean.temp, y = Corrected.LRR, color = Species), 
+             alpha = 0.5)+
+  #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "dashed", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  theme(legend.position = "none")+
+  labs(x = "Average Mean Temperature (°C)", y = "Predicted Change in Log Population Size (LRR)")
+climate.year.plot
+
+#ggsave(climate.year.plot, file = "./Plots/tmean.climate.year.plot.legend.pdf", height = 8, width = 8)
+#ggsave(climate.year.plot, file = "./Plots/tmean.climate.year.plot.pdf", height = 8, width = 8)
 
 #### Seasonal climate Models ####
 LRR.seasonal.mod = lmer(Corrected.LRR ~ early.spring.temp_z + late.spring.temp_z +
@@ -1515,6 +1601,11 @@ COCA.LRR.season = split.LRR.season$COCA[,c(1:12)]
 CYRE.LRR.season = split.LRR.season$CYRE[,c(1:12)]
 SPLU.LRR.season = split.LRR.season$SPLU[,c(1:12)]
 
+cor.test(ARHI.LRR.season$winter.temp, ARHI.LRR.season$early.spring.temp)
+cor.test(COCA.LRR.season$winter.temp, COCA.LRR.season$early.spring.temp)
+cor.test(CYRE.LRR.season$winter.temp, CYRE.LRR.season$early.spring.temp) # P = 0.048
+cor.test(SPLU.LRR.season$winter.temp, SPLU.LRR.season$early.spring.temp)
+
 ARHI.LRR.season = standardise(ARHI.LRR.season, select = c("winter.temp","early.spring.temp",
                                                           "late.spring.temp","spring.ppt",
                                                           "non.spring.ppt"), append = TRUE)
@@ -1528,32 +1619,170 @@ SPLU.LRR.season = standardise(SPLU.LRR.season, select = c("winter.temp","early.s
                                                           "late.spring.temp","spring.ppt",
                                                           "non.spring.ppt"), append = TRUE)
 
+COCA.LRR.season.outlier = COCA.LRR.season[c(1:11),]
+CYRE.LRR.season.outlier = CYRE.LRR.season[c(1,3:23),]
 
-summary(lm(Corrected.LRR ~ early.spring.temp_z, data = ARHI.LRR.season))
-summary(lm(Corrected.LRR ~ early.spring.temp_z, data = COCA.LRR.season))
-summary(lm(Corrected.LRR ~ early.spring.temp_z, data = CYRE.LRR.season))
-summary(lm(Corrected.LRR ~ early.spring.temp_z, data = SPLU.LRR.season))
+cor.test(COCA.LRR.season.outlier$winter.temp,COCA.LRR.season.outlier$early.spring.temp)
+cor.test(CYRE.LRR.season.outlier$winter.temp,CYRE.LRR.season.outlier$early.spring.temp)
+
+
+ARHI.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = ARHI.LRR.season)
+summary(ARHI.early.spring.mod)
+ARHI.preds = predict(ARHI.early.spring.mod, interval = "confidence")
+ARHI.LRR.season = cbind(ARHI.LRR.season,ARHI.preds)
+
+COCA.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = COCA.LRR.season)
+summary(COCA.early.spring.mod)
+COCA.preds = predict(COCA.early.spring.mod, interval = "confidence")
+COCA.LRR.season = cbind(COCA.LRR.season,COCA.preds)
+
+CYRE.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = CYRE.LRR.season)
+summary(CYRE.early.spring.mod)
+CYRE.preds = predict(CYRE.early.spring.mod, interval = "confidence")
+CYRE.LRR.season = cbind(CYRE.LRR.season,CYRE.preds)
+
+SPLU.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = SPLU.LRR.season)
+summary(SPLU.early.spring.mod)
+SPLU.preds = predict(SPLU.early.spring.mod, interval = "confidence")
+SPLU.LRR.season = cbind(SPLU.LRR.season,SPLU.preds)
+
+COCA.early.spring.mod.outlier = lm(Corrected.LRR ~ early.spring.temp_z, data = COCA.LRR.season.outlier) # significant
+summary(COCA.early.spring.mod.outlier)
+COCA.preds.outlier = predict(COCA.early.spring.mod.outlier, interval = "confidence")
+COCA.LRR.season.outlier = cbind(COCA.LRR.season.outlier,COCA.preds.outlier)
+COCA.LRR.season.outlier$Species = "COCA.out"
+
+CYRE.early.spring.mod.outlier = lm(Corrected.LRR ~ early.spring.temp_z, data = CYRE.LRR.season.outlier)
+summary(CYRE.early.spring.mod.outlier)
+CYRE.preds.outlier = predict(CYRE.early.spring.mod.outlier, interval = "confidence")
+CYRE.LRR.season.outlier = cbind(CYRE.LRR.season.outlier,CYRE.preds.outlier)
+CYRE.LRR.season.outlier$Species = "CYRE.out"
+
+# merge
+dfs.all <- list(ARHI.LRR.season, COCA.LRR.season, CYRE.LRR.season, SPLU.LRR.season,
+                     COCA.LRR.season.outlier, CYRE.LRR.season.outlier)
+all.season <- bind_rows(dfs.all)
+
+# plot
+early.spring.plot = ggplot(all.season, aes(x = early.spring.temp, y = fit, color = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
+  geom_point(aes(x = early.spring.temp, y = Corrected.LRR, color = Species), 
+             alpha = 0.5)+
+  #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "dashed", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  theme(legend.position = "none")+
+  labs(x = "Average Early Spring Temperature (°C)\n(March - April)", y = "Predicted Change in Log Population Size (LRR)")
+early.spring.plot
+
+#ggsave(early.spring.plot, file = "./Plots/early.spring.climate.season.plot.legend.pdf", height = 8, width = 8)
+#ggsave(early.spring.plot, file = "./Plots/early.spring.climate.season.plot.pdf", height = 8, width = 8)
 
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = SPLU.LRR.season))
+summary(lm(Corrected.LRR ~ late.spring.temp_z, data = COCA.LRR.season.outlier))
+summary(lm(Corrected.LRR ~ late.spring.temp_z, data = CYRE.LRR.season.outlier))
 
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = SPLU.LRR.season))
+summary(lm(Corrected.LRR ~ spring.ppt_z, data = COCA.LRR.season.outlier))
+summary(lm(Corrected.LRR ~ spring.ppt_z, data = CYRE.LRR.season.outlier))
 
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = SPLU.LRR.season))
+summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = COCA.LRR.season.outlier))
+summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = CYRE.LRR.season.outlier))
 
-summary(lm(Corrected.LRR ~ winter.temp_z, data = ARHI.LRR.season))
-summary(lm(Corrected.LRR ~ winter.temp_z, data = COCA.LRR.season))
-summary(lm(Corrected.LRR ~ winter.temp_z, data = CYRE.LRR.season))
-summary(lm(Corrected.LRR ~ winter.temp_z, data = SPLU.LRR.season))
-# significant, negative 0.0013
+# redo data so early spring fit is erased before these models
+
+ARHI.winter.mod = lm(Corrected.LRR ~ winter.temp_z, data = ARHI.LRR.season)
+summary(ARHI.winter.mod)
+ARHI.preds = predict(ARHI.winter.mod, interval = "confidence")
+ARHI.LRR.season = cbind(ARHI.LRR.season,ARHI.preds)
+
+COCA.winter.mod = lm(Corrected.LRR ~ winter.temp_z, data = COCA.LRR.season)
+summary(COCA.winter.mod)
+COCA.preds = predict(COCA.winter.mod, interval = "confidence")
+COCA.LRR.season = cbind(COCA.LRR.season,COCA.preds)
+
+CYRE.winter.mod = lm(Corrected.LRR ~ winter.temp_z, data = CYRE.LRR.season)
+summary(CYRE.winter.mod)
+CYRE.preds = predict(CYRE.winter.mod, interval = "confidence")
+CYRE.LRR.season = cbind(CYRE.LRR.season,CYRE.preds)
+
+SPLU.winter.mod = lm(Corrected.LRR ~ winter.temp_z, data = SPLU.LRR.season)
+summary(SPLU.winter.mod) # significant, negative
+SPLU.preds = predict(SPLU.winter.mod, interval = "confidence")
+SPLU.LRR.season = cbind(SPLU.LRR.season,SPLU.preds)
+
+COCA.winter.mod.outlier = lm(Corrected.LRR ~ winter.temp_z, data = COCA.LRR.season.outlier) # significant
+summary(COCA.winter.mod.outlier)
+COCA.preds.outlier = predict(COCA.winter.mod.outlier, interval = "confidence")
+COCA.LRR.season.outlier = cbind(COCA.LRR.season.outlier,COCA.preds.outlier)
+COCA.LRR.season.outlier$Species = "COCA.out"
+
+CYRE.winter.mod.outlier = lm(Corrected.LRR ~ winter.temp_z, data = CYRE.LRR.season.outlier)
+summary(CYRE.winter.mod.outlier)
+CYRE.preds.outlier = predict(CYRE.winter.mod.outlier, interval = "confidence")
+CYRE.LRR.season.outlier = cbind(CYRE.LRR.season.outlier,CYRE.preds.outlier)
+CYRE.LRR.season.outlier$Species = "CYRE.out"
+
+# merge
+dfs.all <- list(ARHI.LRR.season, COCA.LRR.season, CYRE.LRR.season, SPLU.LRR.season,
+                COCA.LRR.season.outlier, CYRE.LRR.season.outlier)
+all.winter <- bind_rows(dfs.all)
+
+# plot
+winter.plot = ggplot(all.winter, aes(x = winter.temp, y = fit, color = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
+  geom_point(aes(x = winter.temp, y = Corrected.LRR, color = Species), 
+             alpha = 0.5)+
+  #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "dashed", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  theme(legend.position = "none")+
+  labs(x = "Average Winter Temperature (°C)\n(December - February)", y = "Predicted Change in Log Population Size (LRR)")
+winter.plot
+
+#ggsave(winter.plot, file = "./Plots/winter.climate.season.plot.legend.pdf", height = 8, width = 8)
+#ggsave(winter.plot, file = "./Plots/winter.climate.season.plot.pdf", height = 8, width = 8)
+
+
+# combine plots
+climate.plots = plot_grid(climate.year.plot, labels = c("A."))
+climate.plots
+
+ggsave(climate.plots, file = "./Plots/climate.plot.top.pdf", height = 8, width = 8)
+
+
+bottom_row <- plot_grid(
+  winter.plot, early.spring.plot,
+  labels = c("B.", "C."),
+  ncol = 2,
+  rel_widths = c(1, 1),
+  align = "h"  # horizontal alignment for bottom row
+)
+
+ggsave(bottom_row, file = "./Plots/climate.plot.bottom.pdf", height = 8, width = 12)
+
 
 #### Figure of CDFS and sims ####
 
@@ -1581,7 +1810,7 @@ all.cdfs <- reduce(dfs, full_join)
 
 # plot
 cdf.outlier.plot = ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
-  geom_line(aes(linetype = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
   scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
                                 "C. reginae", "C. reginae", "S. lucida"))+
@@ -1592,7 +1821,7 @@ cdf.outlier.plot = ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
   theme_classic(base_size = 20)+
   labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction",
        title = "Diffusion Approximation")+
- # theme(legend.position = "none")+
+  theme(legend.position = "none")+
   theme(plot.title = element_text(hjust = 0.5))+
   ylim(0,1)
 cdf.outlier.plot
@@ -1632,7 +1861,7 @@ ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
 
 # plot
 sim.outlier.plot = ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
-  geom_line(aes(linetype = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
   scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
                                 "C. reginae", "C. reginae", "S. lucida"))+
@@ -1642,14 +1871,17 @@ sim.outlier.plot = ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
                                    "C. reginae", "C. reginae", "S. lucida")) +
   theme_classic(base_size = 20)+
   labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction", 
-       title = "Stochastic Projection")+
+       title = "Stochastic Simulation")+
   theme(legend.position = "none")+
   theme(plot.title = element_text(hjust = 0.5))+
   ylim(0,1)
 sim.outlier.plot
 
-#ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.legend.pdf", height = 8, width = 8)
-#ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.pdf", height = 8, width = 8)
+ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.legend.pdf", height = 8, width = 8)
+ggsave(sim.outlier.plot, file = "./Plots/sim.outlier.plot.pdf", height = 8, width = 8)
 
+# model plots
+extinction.plots = plot_grid(cdf.outlier.plot,sim.outlier.plot, labels = c("A.","B."))
 
+ggsave(extinction.plots, file = "./Plots/extinction.plot.pdf", height = 8, width = 12)
 
