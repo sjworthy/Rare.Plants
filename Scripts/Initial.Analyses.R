@@ -129,34 +129,34 @@ SPLU.3$Stems.year.T = SPLU.2$Stem.Count[-nt]
 
 ARHI.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = ARHI.3)
 summary(ARHI.mod)
-ARHI.mu = coef(ARHI.mod) # mu = -0.02003551 
-ARHI.sig2 = anova(ARHI.mod)[["Mean Sq"]][2] # variance = 0.1217645
-confint(ARHI.mod,1) # mu CIs = -0.1590133, 0.1189423
+ARHI.mu = coef(ARHI.mod) # mu = 0.003616687  
+ARHI.sig2 = anova(ARHI.mod)[["Mean Sq"]][2] # variance = 0.1386057
+confint(ARHI.mod,1) # mu CIs = -0.1381343 0.1453677
 df1 = length(ARHI.3$LRR)-1
 (df1*anova(ARHI.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06526691 0.30285769
+# var CIs =  0.07688209 0.32104787
 
 COCA.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = COCA.2)
 summary(COCA.mod)
-COCA.mu = coef(COCA.mod) # mu = -0.0500674 
-COCA.sig2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.1230193
-confint(COCA.mod,1) # CIs = -0.2014644 0.1013296
+COCA.mu = coef(COCA.mod) # mu = -0.06184179  
+COCA.sig2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.1083922
+confint(COCA.mod,1) # CIs = -0.1962568 0.07257325
 df1 = length(COCA.2$LRR)-1
 (df1*anova(COCA.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06173402 0.35463891
+# var CIs = 0.05696641 0.28132739
 
 CYRE.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = CYRE.2)
 summary(CYRE.mod)
-CYRE.mu = coef(CYRE.mod) # mu = -0.01633807  
-CYRE.sig2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.1234609
-confint(CYRE.mod,1) # CIs = -0.1274633 0.09478714
+CYRE.mu = coef(CYRE.mod) # mu = -0.01875972   
+CYRE.sig2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.1204263
+confint(CYRE.mod,1) # CIs = -0.1255281 0.08800868
 df1 = length(CYRE.2$LRR)-1
 (df1*anova(CYRE.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.07384683 0.24731923
+# var CIs = 0.07342306 0.23306154
 
 SPLU.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = SPLU.3)
 summary(SPLU.mod)
-SPLU.mu = coef(SPLU.mod) # mu = 0.06933172  
+SPLU.mu = coef(SPLU.mod) # mu = 0.06933172   
 SPLU.sig2 = anova(SPLU.mod)[["Mean Sq"]][2] # variance = 0.2846666
 confint(SPLU.mod,1) # CIs = -0.2212901 0.3599535
 df1 = length(SPLU.3$LRR)-1
@@ -213,9 +213,9 @@ ggplot(SPLU.3, aes(x = Year.transform, y = Corrected.LRR))+
 # or death is independent of whether preceding or succeeding intervals were
 # good or bad
 
-dwtest(ARHI.mod, alternative = "two.sided") # p = 0.027, DW = 0.95
-dwtest(CYRE.mod, alternative = "two.sided") # p = 0.019, DW = 2.89
-dwtest(COCA.mod, alternative = "two.sided") # p = 0.133, DW = 1.18
+dwtest(ARHI.mod, alternative = "two.sided") # p = 0.022, DW = 0.98
+dwtest(CYRE.mod, alternative = "two.sided") # p = 0.023, DW = 2.84
+dwtest(COCA.mod, alternative = "two.sided") # p = 0.767, DW = 2.14
 dwtest(SPLU.mod, alternative = "two.sided") # p = 0.281, DW = 1.43
 
 # test for autocorrelation using the residuals the first-order autocorrelation
@@ -227,7 +227,7 @@ res <- resid(ARHI.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = 0.42, p = 0.13
+cor.test(res_t, res_t_1) # r = 0.49, p = 0.05296
 
 # Get residuals
 res <- resid(CYRE.mod)
@@ -235,7 +235,7 @@ res <- resid(CYRE.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = -0.48, p = 0.02
+cor.test(res_t, res_t_1) # r = -0.49, p = 0.02
 
 # Get residuals
 res <- resid(COCA.mod)
@@ -243,7 +243,7 @@ res <- resid(COCA.mod)
 res_t   <- res[-1]         # residuals t = 2, ..., n
 res_t_1 <- res[-length(res)]  # residuals t-1 = 1, ..., n-1
 # Compute Pearson correlation
-cor.test(res_t, res_t_1) # r = 0.11, p = 0.74
+cor.test(res_t, res_t_1) # r = -0.11, p = 0.71
 
 # Get residuals
 res <- resid(SPLU.mod)
@@ -282,62 +282,43 @@ dffits(SPLU.mod)[dffits(SPLU.mod) > 2*sqrt(1/13)] # none
 
 #### REDO models removing outliers ####
 # remove transition 12 for COCA
-COCA.3 = COCA.2[c(1:11),]
+COCA.3 = COCA.2[c(1:11,13:14),]
 
 # rerun models
 COCA.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = COCA.3)
 summary(COCA.mod)
-COCA.mu.2 = coef(COCA.mod) # mu = -0.08939685
-COCA.sig2.2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.03477893
-confint(COCA.mod,1) # CIs = -0.1725025 -0.006291231
+COCA.mu.2 = coef(COCA.mod) # mu = -0.09869404 
+COCA.sig2.2 = anova(COCA.mod)[["Mean Sq"]][2] # variance = 0.03186536
+confint(COCA.mod,1) # CIs = -0.173545 -0.02384306
 df1 = length(COCA.2$LRR)-1
 (df1*anova(COCA.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.01745289 0.10026035
+# var CIs =  0.01674710 0.08270519
 
 # testing for autocorrelation again
-dwtest(COCA.mod, alternative = "two.sided") # p = 0.2832, DW = 2.57
-
-# remove transition 2 for CYRE
-CYRE.3 = CYRE.2[c(1,3:23),]
-
-CYRE.mod = lm(Corrected.LRR ~ 0 + Year.transform, data = CYRE.3)
-summary(CYRE.mod)
-CYRE.mu.2 = coef(CYRE.mod) # mu = -0.04095235  
-CYRE.sig2.2 = anova(CYRE.mod)[["Mean Sq"]][2] # variance = 0.1039081
-confint(CYRE.mod,1) # CIs = -0.1456448 0.06374014
-df1 = length(CYRE.2$LRR)-1
-(df1*anova(CYRE.mod)[["Mean Sq"]][2])/qchisq(c(0.975,0.025), df = df1)
-# var CIs = 0.06215157 0.20815080
-
-# testing for autocorrelation again
-dwtest(CYRE.mod, alternative = "two.sided") # p = 0.03, DW = 2.86
+dwtest(COCA.mod, alternative = "two.sided") # p = 0.1125, DW = 2.78
 
 #### Finite population growth rate ####
 # not sure if this is correct
-exp(ARHI.mu) # 0.9801639
-exp(CYRE.mu) # 0.9837947 
-exp(CYRE.mu.2) # 0.9598749
-exp(COCA.mu) # 0.9511653 
-exp(COCA.mu.2) # 0.9144826 
+exp(ARHI.mu) # 1.003623 
+exp(CYRE.mu) # 0.9814151  
+exp(COCA.mu) # 0.9400316  
+exp(COCA.mu.2) # 0.9144826  
 exp(SPLU.mu) # 1.071792 
 
 #### Continuous rate of increase and average finite rate of increase ####
 
 # continuous rate of increase (rbar), this is per unit time
 # if r = 0.02 this mean 2% increase per year
-ARHI.r = ARHI.mu + ARHI.sig2/2 # 0.04084674 
+ARHI.r = ARHI.mu + ARHI.sig2/2 # 0.07291953  
 ARHI.r.low = ARHI.r + qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
 ARHI.r.high = ARHI.r - qnorm(0.025)*sqrt(ARHI.sig2 * ((1/29) + (ARHI.sig2 / (2 * (15 - 1)))))
-CYRE.r = CYRE.mu + CYRE.sig2/2 # 0.04539237 
+CYRE.r = CYRE.mu + CYRE.sig2/2 # 0.04145343 
 CYRE.r.low = CYRE.r + qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
 CYRE.r.high = CYRE.r - qnorm(0.025)*sqrt(CYRE.sig2 * ((1/43) + (CYRE.sig2 / (2 * (23 - 1)))))
-CYRE.r.2 = CYRE.mu.2 + CYRE.sig2.2/2 # 0.01100171 
-CYRE.r.low.2 = CYRE.r.2 + qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
-CYRE.r.high.2 = CYRE.r.2 - qnorm(0.025)*sqrt(CYRE.sig2.2 * ((1/43) + (CYRE.sig2.2 / (2 * (22 - 1)))))
-COCA.r = COCA.mu + COCA.sig2/2 # 0.01144227 
+COCA.r = COCA.mu + COCA.sig2/2 # -0.007645689  
 COCA.r.low = COCA.r + qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
 COCA.r.high = COCA.r - qnorm(0.025)*sqrt(COCA.sig2 * ((1/26) + (COCA.sig2 / (2 * (12 - 1)))))
-COCA.r.2 = COCA.mu.2 + COCA.sig2.2/2 # -0.07200738
+COCA.r.2 = COCA.mu.2 + COCA.sig2.2/2 # -0.08276136 
 COCA.r.low.2 = COCA.r.2 + qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
 COCA.r.high.2 = COCA.r.2 - qnorm(0.025)*sqrt(COCA.sig2.2 * ((1/25) + (COCA.sig2.2 / (2 * (11 - 1)))))
 SPLU.r = SPLU.mu + SPLU.sig2/2 # 0.211665 
@@ -349,19 +330,16 @@ SPLU.r.high = SPLU.r - qnorm(0.025)*sqrt(SPLU.sig2 * ((1/16) + (SPLU.sig2 / (2 *
 # average population growth rate
 
 # lambda 1.02 = 2% increase per time step
-exp(ARHI.r) # 1.041692
+exp(ARHI.r) # 1.075644
 exp(ARHI.r.low)
 exp(ARHI.r.high)
-exp(CYRE.r) # 1.046438
+exp(CYRE.r) # 1.042325 
 exp(CYRE.r.low)
 exp(CYRE.r.high)
-exp(CYRE.r.2) # 1.011062 
-exp(CYRE.r.low.2)
-exp(CYRE.r.high.2)
-exp(COCA.r) # 1.011508 
+exp(COCA.r) # 0.9923835  
 exp(COCA.r.low)
 exp(COCA.r.high)
-exp(COCA.r.2) # 0.930524 
+exp(COCA.r.2) # 0.9205708  
 exp(COCA.r.low.2)
 exp(COCA.r.high.2)
 exp(SPLU.r) # 1.235734 
@@ -392,7 +370,7 @@ SPLU.prob*2.757946e-01 # 0.08454067
 
 #### extinction time cumulative distribution function ####
 
-ARHI.cdf = extCDF(ARHI.mu,ARHI.sig2,Nc = 33, Ne = 10, tmax = 50)
+ARHI.cdf = extCDF(ARHI.mu,ARHI.sig2,Nc = 66, Ne = 10, tmax = 50)
 ARHI.cdf = as.data.frame(ARHI.cdf)
 ARHI.cdf$Years = 1:50
 
@@ -416,8 +394,8 @@ for (i in 1:length(n) ){
   exts[i] <- ex[50]
 }
 
-ARHI.countCDF = countCDFxt(mu = ARHI.mu, sig2 = ARHI.sig2, nt = 15,
-                           Nc = 33, Ne = 10, tq = 29,
+ARHI.countCDF = countCDFxt(mu = ARHI.mu, sig2 = ARHI.sig2, nt = 17,
+                           Nc = 66, Ne = 10, tq = 31,
                            tmax = 50, Nboot = 10000, plot = TRUE)
 ARHI.countCDF$Year = 1:50
 write.csv(ARHI.countCDF, file = "./Formatted.Data/ARHI.diff.graphing.csv")
@@ -437,7 +415,7 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-CYRE.cdf = extCDF(CYRE.mu,CYRE.sig2,Nc = 53, Ne = 10, tmax = 50)
+CYRE.cdf = extCDF(CYRE.mu,CYRE.sig2,Nc = 46, Ne = 10, tmax = 50)
 CYRE.cdf = as.data.frame(CYRE.cdf)
 CYRE.cdf$Years = 1:50
 
@@ -459,8 +437,8 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-CYRE.countCDF = countCDFxt(mu = CYRE.mu, sig2 = CYRE.sig2, nt = 23,
-                           Nc = 53, Ne = 10, tq = 43,
+CYRE.countCDF = countCDFxt(mu = CYRE.mu, sig2 = CYRE.sig2, nt = 25,
+                           Nc = 46, Ne = 10, tq = 45,
                            tmax = 50, Nboot = 500, plot = TRUE)
 CYRE.countCDF$Year = 1:50
 write.csv(CYRE.countCDF, file = "./Formatted.Data/CYRE.diff.graphing.csv")
@@ -473,7 +451,7 @@ ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-COCA.cdf = extCDF(COCA.mu,COCA.sig2,Nc = 478, Ne = 10, tmax = 50)
+COCA.cdf = extCDF(COCA.mu,COCA.sig2,Nc = 311, Ne = 10, tmax = 50)
 COCA.cdf = as.data.frame(COCA.cdf)
 COCA.cdf$Years = 1:50
 
@@ -495,8 +473,8 @@ plot(n, exts, type='l', las=1,
      xlab="Current population size",
      ylab="Probability of quasi-extinction by year 50")
 
-COCA.countCDF = countCDFxt(mu = COCA.mu, sig2 = COCA.sig2, nt = 12,
-                           Nc = 478, Ne = 10, tq = 26,
+COCA.countCDF = countCDFxt(mu = COCA.mu, sig2 = COCA.sig2, nt = 14,
+                           Nc = 311, Ne = 10, tq = 28,
                            tmax = 50, Nboot = 500, plot = TRUE)
 COCA.countCDF$Year = 1:50
 write.csv(COCA.countCDF, file = "./Formatted.Data/COCA.diff.graphing.csv")
@@ -546,12 +524,13 @@ ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-# using real last census size of 2 in 2023
-SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 13,
+# using real last census size of 2 in 2024, can't use Nc=0
+SPLU.countCDF = countCDFxt(mu = SPLU.mu, sig2 = SPLU.sig2, nt = 31,
                            Nc = 2, Ne = 10, tq = 29,
                            tmax = 50, Nboot = 10000, plot = TRUE)
+
 SPLU.countCDF$Year = 1:50
-write.csv(SPLU.countCDF, file = "./Formatted.Data/SPLU.diff.graphing.n2023.csv")
+write.csv(SPLU.countCDF, file = "./Formatted.Data/SPLU.diff.graphing.n2024.csv")
 
 ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
   geom_line()+
@@ -561,39 +540,7 @@ ggplot(SPLU.countCDF, aes(x = 1:50, y = Gbest))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-CYRE.cdf.2 = extCDF(CYRE.mu.2,CYRE.sig2.2,Nc = 53, Ne = 10, tmax = 50)
-CYRE.cdf.2 = as.data.frame(CYRE.cdf.2)
-CYRE.cdf.2$Years = 1:50
-
-x_at_half <- CYRE.cdf.2 %>%
-  filter(abs(CYRE.cdf.2 - 0.5) == min(abs(CYRE.cdf.2 - 0.5))) %>%
-  pull(Years)
-
-ggplot(CYRE.cdf.2, aes(y = CYRE.cdf.2, x = Years))+
-  geom_line()+
-  geom_segment(aes(x = 0, y = 0.5, xend = x_at_half, yend = 0.5), size = 0.8) +
-  geom_segment(aes(x = x_at_half, y = 0, xend = x_at_half, yend = 0.5), size = 0.8) +
-  ylim(0.0,1.0)+
-  theme_classic(base_size = 20)+
-  xlab("Years into the Future")+
-  ylab("Cumulative Probability of Quasi-Extinction")
-
-CYRE.countCDF = countCDFxt(mu = CYRE.mu.2, sig2 = CYRE.sig2.2, nt = 22,
-                           Nc = 53, Ne = 10, tq = 43,
-                           tmax = 50, Nboot = 10000, plot = TRUE)
-
-ggplot(CYRE.countCDF, aes(x = 1:50, y = Gbest))+
-  geom_line()+
-  geom_ribbon(aes(ymin = Glo, ymax = Gup), fill = "red", alpha = 0.2)+
-  ylim(0.0,1.0)+
-  theme_classic(base_size = 22)+
-  xlab("Years into the Future")+
-  ylab("Cumulative Probability of Quasi-Extinction")
-
-CYRE.countCDF$Year = 1:50
-write.csv(CYRE.countCDF, file = "./Formatted.Data/CYRE.outlier.diff.graphing.csv")
-
-COCA.cdf.2 = extCDF(COCA.mu.2,COCA.sig2.2,Nc = 188, Ne = 10, tmax = 50)
+COCA.cdf.2 = extCDF(COCA.mu.2,COCA.sig2.2,Nc = 311, Ne = 10, tmax = 50)
 COCA.cdf.2 = as.data.frame(COCA.cdf.2)
 COCA.cdf.2$Years = 1:50
 
@@ -610,8 +557,8 @@ ggplot(COCA.cdf.2, aes(y = COCA.cdf.2, x = Years))+
   xlab("Years into the Future")+
   ylab("Cumulative Probability of Quasi-Extinction")
 
-COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 11,
-                           Nc = 188, Ne = 10, tq = 25,
+COCA.countCDF = countCDFxt(mu = COCA.mu.2, sig2 = COCA.sig2.2, nt = 13,
+                           Nc = 311, Ne = 10, tq = 28,
                            tmax = 50, Nboot = 10000, plot = TRUE)
 
 COCA.countCDF$Year = 1:50
@@ -655,32 +602,26 @@ ggplot(SPLU.3, aes(x = Stems.year.T, y = LRR))+
 # some papers do a straight regression
 # others log transform initial population size
 
-cor.test(ARHI.3$LRR,ARHI.3$Stems.year.T) # r = -0.12, p = 0.67
+cor.test(ARHI.3$LRR,ARHI.3$Stems.year.T) # r = -0.21, p = 0.41
 ARHI.DD.mod = lm(LRR ~ log(Stems.year.T), data = ARHI.3)
 summary(ARHI.DD.mod) # not significant
 check_normality(ARHI.DD.mod) # not normal
 check_heteroskedasticity(ARHI.DD.mod)
 
-cor.test(COCA.2$LRR,COCA.2$Stems.year.T) # r = -0.27, p = 0.40
+cor.test(COCA.2$LRR,COCA.2$Stems.year.T) # r = -0.21, p = 0.47
 COCA.DD.mod = lm(LRR ~ log(Stems.year.T), data = COCA.2)
 summary(COCA.DD.mod) # not significant
 check_normality(COCA.DD.mod) # not normal
 check_heteroskedasticity(COCA.DD.mod)
 
-cor.test(COCA.3$LRR,COCA.3$Stems.year.T) # r = 0.06, p = 0.87
+cor.test(COCA.3$LRR,COCA.3$Stems.year.T) # r = 0.05, p = 0.87
 COCA.DD.mod = lm(LRR ~ log(Stems.year.T), data = COCA.3)
 summary(COCA.DD.mod) # not significant
 check_normality(COCA.DD.mod) # not normal
 check_heteroskedasticity(COCA.DD.mod)
 
-cor.test(CYRE.2$LRR,CYRE.2$Stems.year.T) # r = -0.48, p = 0.02
+cor.test(CYRE.2$LRR,CYRE.2$Stems.year.T) # r = -0.46, p = 0.02
 CYRE.DD.mod = lm(LRR ~ log(Stems.year.T), data = CYRE.2)
-summary(CYRE.DD.mod) # not significant
-check_normality(CYRE.DD.mod)
-check_heteroskedasticity(CYRE.DD.mod)
-
-cor.test(CYRE.3$LRR,CYRE.3$Stems.year.T) # r = -0.45, p = 0.04
-CYRE.DD.mod = lm(LRR ~ log(Stems.year.T), data = CYRE.3)
 summary(CYRE.DD.mod) # not significant
 check_normality(CYRE.DD.mod)
 check_heteroskedasticity(CYRE.DD.mod)
@@ -710,7 +651,7 @@ for (t in 1:10000){
   ARHI.LRR.dist=rnorm(50, ARHI.LRR.mean, ARHI.LRR.sd)
   
   # starting population size 
-  ARHI.Nt=33
+  ARHI.Nt=66
 
   # loop; 50-year projection
   for (n in 1:50) 
@@ -733,10 +674,10 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-ARHI.probext=sum(ARHI.ext)/10000
-binom.test(7186,10000)
+ARHI.probext=sum(ARHI.ext)/10000 # 0.2969
+binom.test(2969,10000) 
 
-#extract results; each column is one replicate 20-year projection
+#extract results; each column is one replicate 50-year projection
 write.csv(ARHI.sim,"./Formatted.Data/ARHI.sim.graphing.csv")
 
 # output files
@@ -751,7 +692,7 @@ for (t in 1:10000){
   ARHI.LRR.dist=rnorm(50, ARHI.LRR.mean, ARHI.LRR.sd)
   
   # starting population size 
-  ARHI.Nt=33
+  ARHI.Nt=66
   extinct = FALSE
   
   # loop; 50-year projection
@@ -814,7 +755,7 @@ for (t in 1:10000){
   COCA.LRR.dist=rnorm(50, COCA.LRR.mean, COCA.LRR.sd)
   
   # starting population size 
-  COCA.Nt=478
+  COCA.Nt=311
   
   # loop; 50-year projection
   for (n in 1:50) 
@@ -837,8 +778,8 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-COCA.probext=sum(COCA.ext)/10000
-binom.test(1193,10000)
+COCA.probext=sum(COCA.ext)/10000 # 0.3182
+binom.test(3182,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(COCA.sim,"./Formatted.Data/COCA.sim.graphing.csv") 
@@ -855,7 +796,7 @@ for (t in 1:10000){
   COCA.LRR.dist=rnorm(50, COCA.LRR.mean, COCA.LRR.sd)
   
   # starting population size 
-  COCA.Nt=478
+  COCA.Nt=311
   extinct = FALSE
   
   # loop; 50-year projection
@@ -918,7 +859,7 @@ for (t in 1:10000){
   CYRE.LRR.dist=rnorm(50, CYRE.LRR.mean, CYRE.LRR.sd)
   
   # starting population size 
-  CYRE.Nt=53
+  CYRE.Nt=46
   
   # loop; 50-year projection
   for (n in 1:50) 
@@ -941,8 +882,8 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-CYRE.probext=sum(CYRE.ext)/10000
-binom.test(4641,10000)
+CYRE.probext=sum(CYRE.ext)/10000 # 0.5367
+binom.test(5367,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(CYRE.sim,"./Formatted.Data/CYRE.sim.graphing.csv")
@@ -959,7 +900,7 @@ for (t in 1:10000){
   CYRE.LRR.dist=rnorm(50, CYRE.LRR.mean, CYRE.LRR.sd)
   
   # starting population size 
-  CYRE.Nt=53
+  CYRE.Nt=46
   extinct = FALSE
   
   # loop; 50-year projection
@@ -1047,7 +988,7 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-SPLU.probext=sum(SPLU.ext)/10000 
+SPLU.probext=sum(SPLU.ext)/10000 # 0.2049
 binom.test(2049,10000)
 
 #extract results; each column is one replicate 20-year projection
@@ -1128,7 +1069,7 @@ for (t in 1:10000){
   COCA.LRR.dist.2=rnorm(50, COCA.LRR.mean.2, COCA.LRR.sd.2)
   
   # starting population size 
-  COCA.Nt=188
+  COCA.Nt=311
   
   # loop; 50-year projection
   for (n in 1:50) 
@@ -1151,8 +1092,8 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-COCA.probext.2=sum(COCA.ext.2)/10000 
-binom.test(8768,10000)
+COCA.probext.2=sum(COCA.ext.2)/10000 #0.9327
+binom.test(9327,10000)
 
 #extract results; each column is one replicate 20-year projection
 write.csv(COCA.sim.2,"./Formatted.Data/COCA.outlier.sim.graphing.csv")
@@ -1169,7 +1110,7 @@ for (t in 1:10000){
   COCA.LRR.dist.2=rnorm(50, COCA.LRR.mean.2, COCA.LRR.sd.2)
   
   # starting population size 
-  COCA.Nt=188
+  COCA.Nt=311
   extinct = FALSE
   
   # loop; 50-year projection
@@ -1216,111 +1157,7 @@ COCA.2.sim.cdf$prob = yearly_ext_prob
 
 write.csv(COCA.2.sim.cdf, file = "./Formatted.Data/COCA.2.sim.cdf.csv")
 
-# LRR mean and sd for distribution
-CYRE.LRR.mean.2 = mean(CYRE.3$Corrected.LRR)
-CYRE.LRR.sd.2 = sd(CYRE.3$Corrected.LRR)
-
-# output files
-CYRE.sim.2 = matrix(NA,nrow = 50, ncol = 10000)
-CYRE.ext.2 = rep(NA,10000)
-
-# loop; 10000 replicate 50-year projections
-set.seed(13)
-for (t in 1:10000){
-  
-  # distribution of values to pick from
-  CYRE.LRR.dist.2=rnorm(50, CYRE.LRR.mean.2, CYRE.LRR.sd.2)
-  
-  # starting population size 
-  CYRE.Nt=53
-  
-  # loop; 50-year projection
-  for (n in 1:50) 
-  {
-    CYRE.Nt <- CYRE.Nt*exp(CYRE.LRR.dist.2[n]) #computes N(t+1) = Nt*exp(LRR);
-    if(CYRE.Nt<1) {
-      CYRE.Nt=0 # to set a population as zero if it drops below 1 individual
-    } else {
-      CYRE.Nt=CYRE.Nt
-    }
-    CYRE.sim.2[n,t]=CYRE.Nt
-  } #end of 50 year projection
-  
-  #capture extinctions
-  if (min(CYRE.sim.2[,t])<=10){ #quasi-extinction threshold  = 10 Ind
-    CYRE.ext.2[t]=1
-  } else {
-    CYRE.ext.2[t]=0
-  }
-} #end of 1,0000 replicates
-
-# calculate the probability of extinction
-CYRE.probext.2=sum(CYRE.ext.2)/10000 
-binom.test(6819,10000)
-
-#extract results; each column is one replicate 20-year projection
-write.csv(CYRE.sim.2,"./Formatted.Data/CYRE.outlier.sim.graphing.csv")
-
-# output files
-CYRE.sim.2.cdf = matrix(NA,nrow = 50, ncol = 10000)
-CYRE.ext.2.cdf = rep(0,10000)
-
-# loop; 10000 replicate 50-year projections
-set.seed(13)
-for (t in 1:10000){
-  
-  # distribution of values to pick from
-  CYRE.LRR.dist.2=rnorm(50, CYRE.LRR.mean.2, CYRE.LRR.sd.2)
-  
-  # starting population size 
-  CYRE.Nt=53
-  extinct = FALSE
-  
-  # loop; 50-year projection
-  for (n in 1:50) {
-    
-    # if already extinct in a previous year, keep at zero
-    if (extinct) {
-      CYRE.Nt <- 0
-    } else {
-      # project abundance
-      CYRE.Nt <- CYRE.Nt * exp(CYRE.LRR.dist.2[n])
-      
-      # enforce integer quasi-extinction threshold
-      if (CYRE.Nt < 1) CYRE.Nt <- 0
-    }
-    
-    # store value
-    CYRE.sim.2.cdf[n, t] <- CYRE.Nt
-    
-    # check for quasi-extinction (threshold = 10)
-    if (CYRE.Nt <= 10 & !extinct) {
-      extinct <- TRUE
-      CYRE.ext.2.cdf[t] <- 1
-    }
-  }
-}
-
-yearly_ext_prob <- rowMeans(CYRE.sim.2.cdf <= 10)
-yearly_ext_prob
-
-n.reps <- ncol(CYRE.sim.2.cdf)
-
-yearly_counts <- rowSums(CYRE.sim.2.cdf <= 10)
-
-yearly_CI <- t(sapply(yearly_counts, function(k)
-  binom.test(k, n.reps)$conf.int
-))
-
-colnames(yearly_CI) <- c("lower", "upper")
-yearly_CI
-
-CYRE.2.sim.cdf = as.data.frame(yearly_CI)
-CYRE.2.sim.cdf$prob = yearly_ext_prob
-
-write.csv(CYRE.2.sim.cdf, file = "./Formatted.Data/CYRE.2.sim.cdf.csv")
-
-# SPLU with 2023 pop size
+# SPLU with 2024 pop size
 
 # LRR mean and sd for distribution
 SPLU.LRR.mean = mean(SPLU.3$Corrected.LRR)
@@ -1331,6 +1168,7 @@ SPLU.sim = matrix(NA,nrow = 50, ncol = 10000)
 SPLU.ext = rep(NA,10000)
 
 # loop; 10000 replicate 50-year projections
+set.seed(13)
 for (t in 1:10000){
   
   # distribution of values to pick from
@@ -1360,10 +1198,11 @@ for (t in 1:10000){
 } #end of 1,0000 replicates
 
 # calculate the probability of extinction
-SPLU.probext=sum(SPLU.ext)/10000 
+SPLU.probext=sum(SPLU.ext)/10000 # 0.99
+binom.test(9993,10000)
 
-#extract results; each column is one replicate 20-year projection
-write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.n2023.csv")
+#extract results; each column is one replicate 50-year projection
+write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.n2024.csv")
 
 #### Climate Data Prep ####
 # annual climate year is the year of the survey, so counts in 1994 have 1994 annual climate
@@ -1371,13 +1210,13 @@ write.csv(SPLU.sim,"./Formatted.Data/SPLU.sim.graphing.n2023.csv")
 
 # merge LRR values for all pops into one file
 ARHI.3$Species = "ARHI"
-ARHI.3$Year = ARHI.2[c(1:15),2]
+ARHI.3$Year = ARHI.2[c(1:17),2]
 ARHI.3$Climate.Year = ARHI.3$Year-1
 COCA.2$Species = "COCA"
-COCA.2$Year = COCA[c(1:12),2]
+COCA.2$Year = COCA[c(1:14),2]
 COCA.2$Climate.Year = COCA.2$Year-1
 CYRE.2$Species = "CYRE"
-CYRE.2$Year = CYRE[c(1:23),2]
+CYRE.2$Year = CYRE[c(1:25),2]
 CYRE.2$Climate.Year = CYRE.2$Year-1
 SPLU.3$Species = "SPLU"
 SPLU.3$Year = SPLU.2[c(1:13),2]
@@ -1442,18 +1281,55 @@ all.season.climate <- reduce(dfs, full_join, by = c("Species", "Climate.Year"))
 # merge climate data with LRR data
 LRR.all.climate.year = left_join(LRR.all,climate.year, by = c("Species","Climate.Year"))
 
-# scale ppt and temp
-LRR.all.climate.year = standardise(LRR.all.climate.year, select = c("total.ppt","mean.temp"), append = TRUE)
+# snow depth data
+
+snow = read.csv("./Formatted.Data/Snow.depth.formatted.csv")
+snow$Date = as.Date(snow$Date, "%m/%d/%Y")
+
+snow = snow %>% 
+  mutate(Year = year(Date),
+         Month = month(Date))
+
+# Assign September-August as climate year
+snow = snow %>% 
+  mutate(Climate.Year = ifelse(Month >= 9, Year, Year - 1))
+
+# filter for November - February
+snow = snow %>% 
+  filter(Month %in% c(11,12,1,2))
+
+# remove rows with missing values (858)
+snow = snow %>% 
+  filter(Depth.inches != "M")
+snow$Depth.inches = as.numeric(snow$Depth.inches)
+
+# convert inches to mm
+snow$depth.mm = conv_unit(snow$Depth.inches,"inch","mm")
+
+# summarize, only doing November - February
+snow.year = snow %>% 
+  group_by(Climate.Year,Month) %>%
+  summarise(mean.depth = mean(depth.mm)) %>% 
+  group_by(Climate.Year) %>% 
+  summarise(mean.yr.depth = mean(mean.depth))
+
+LRR.all.climate.year = left_join(LRR.all.climate.year,snow.year, by = c("Climate.Year"))
+
+# scale variables
+LRR.all.climate.year = standardise(LRR.all.climate.year, select = c("total.ppt","mean.temp","mean.yr.depth"), append = TRUE)
 all.season.climate = standardise(all.season.climate, select = c("winter.temp","early.spring.temp",
                                                                 "late.spring.temp","spring.ppt",
                                                                 "non.spring.ppt"), append = TRUE)
-
 # correlation of seasonal variables
 cor.season = cor(all.season.climate[,c(8:12)], use = "pairwise")
 corrplot(cor.season,method = "number")
-# winter temp and early spring temp only variables semi-correlated (r = 0.47)
+# winter temp and early spring temp only variables semi-correlated (r = 0.48)
 
 LRR.all.season = left_join(LRR.all,all.season.climate, by = c("Species","Climate.Year"))
+
+cor.all.year = cor(LRR.all.climate.year[,c(13:15)], use = "pairwise")
+corrplot(cor.all.year,method = "number")
+# mean.yr.depth and mean.temp = -0.70
 
 #### Climate Year Models ####
 
@@ -1464,41 +1340,41 @@ check_model(LRR.climate.year.mod)
 
 # species specific models
 split.LRR.climate.year = split(LRR.all.climate.year, LRR.all.climate.year$Species)
-ARHI.climate.year = split.LRR.climate.year$ARHI[,c(1:11)]
-COCA.climate.year = split.LRR.climate.year$COCA[,c(1:11)]
-CYRE.climate.year = split.LRR.climate.year$CYRE[,c(1:11)]
-SPLU.climate.year = split.LRR.climate.year$SPLU[,c(1:11)]
+ARHI.climate.year = split.LRR.climate.year$ARHI[,c(1:12)]
+COCA.climate.year = split.LRR.climate.year$COCA[,c(1:12)]
+CYRE.climate.year = split.LRR.climate.year$CYRE[,c(1:12)]
+SPLU.climate.year = split.LRR.climate.year$SPLU[,c(1:12)]
 
-ARHI.climate.year = standardise(ARHI.climate.year, select = c("total.ppt","mean.temp"), append = TRUE)
-COCA.climate.year = standardise(COCA.climate.year, select = c("total.ppt","mean.temp"), append = TRUE)
-CYRE.climate.year = standardise(CYRE.climate.year, select = c("total.ppt","mean.temp"), append = TRUE)
-SPLU.climate.year = standardise(SPLU.climate.year, select = c("total.ppt","mean.temp"), append = TRUE)
+ARHI.climate.year = standardise(ARHI.climate.year, select = c("total.ppt","mean.temp","mean.yr.depth"), append = TRUE)
+COCA.climate.year = standardise(COCA.climate.year, select = c("total.ppt","mean.temp","mean.yr.depth"), append = TRUE)
+CYRE.climate.year = standardise(CYRE.climate.year, select = c("total.ppt","mean.temp","mean.yr.depth"), append = TRUE)
+SPLU.climate.year = standardise(SPLU.climate.year, select = c("total.ppt","mean.temp","mean.yr.depth"), append = TRUE)
 
 ARHI.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = ARHI.climate.year)
 summary(ARHI.LRR.climate.year.mod)
 check_normality(ARHI.LRR.climate.year.mod)
 check_heteroscedasticity(ARHI.LRR.climate.year.mod)
 check_collinearity(ARHI.LRR.climate.year.mod)
-check_autocorrelation(ARHI.LRR.climate.year.mod)
+check_autocorrelation(ARHI.LRR.climate.year.mod) # autocorrelated residuals
 
 ARHI.effects = as.data.frame(allEffects(ARHI.LRR.climate.year.mod)[["mean.temp_z"]])
 ARHI.effects$Species = "ARHI"
 attr(ARHI.climate.year$mean.temp_z, "scale")
 attr(ARHI.climate.year$mean.temp_z, "center")
-ARHI.effects$mean.temp = ARHI.effects$mean.temp_z*0.8088384+9.374383 
+ARHI.effects$mean.temp = ARHI.effects$mean.temp_z*0.9395418+9.537309 
 
 COCA.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year)
 summary(COCA.LRR.climate.year.mod)
-check_normality(COCA.LRR.climate.year.mod)
+check_normality(COCA.LRR.climate.year.mod) # not normal
 check_heteroscedasticity(COCA.LRR.climate.year.mod)
-check_collinearity(COCA.LRR.climate.year.mod)
+check_collinearity(COCA.LRR.climate.year.mod) # VIF 1.13
 check_autocorrelation(COCA.LRR.climate.year.mod)
 
 COCA.effects = as.data.frame(allEffects(COCA.LRR.climate.year.mod)[["mean.temp_z"]])
 COCA.effects$Species = "COCA"
 attr(COCA.climate.year$mean.temp_z, "scale")
 attr(COCA.climate.year$mean.temp_z, "center")
-COCA.effects$mean.temp = COCA.effects$mean.temp_z*0.8757011+9.842207 
+COCA.effects$mean.temp = COCA.effects$mean.temp_z*0.9690648+10.01488 
 
 CYRE.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year)
 summary(CYRE.LRR.climate.year.mod)
@@ -1511,13 +1387,13 @@ CYRE.effects = as.data.frame(allEffects(CYRE.LRR.climate.year.mod)[["mean.temp_z
 CYRE.effects$Species = "CYRE"
 attr(CYRE.climate.year$mean.temp_z, "scale")
 attr(CYRE.climate.year$mean.temp_z, "center")
-CYRE.effects$mean.temp = CYRE.effects$mean.temp_z*0.8788405+9.636272 
+CYRE.effects$mean.temp = CYRE.effects$mean.temp_z*0.9582849+9.750926 
 
 SPLU.LRR.climate.year.mod = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = SPLU.climate.year)
 summary(SPLU.LRR.climate.year.mod) # mean temp is significant 0.012 (negative)
 check_normality(SPLU.LRR.climate.year.mod)
 check_heteroscedasticity(SPLU.LRR.climate.year.mod)
-check_collinearity(SPLU.LRR.climate.year.mod)
+check_collinearity(SPLU.LRR.climate.year.mod) # VIF 1.21
 check_autocorrelation(SPLU.LRR.climate.year.mod)
 
 SPLU.effects = as.data.frame(allEffects(SPLU.LRR.climate.year.mod)[["mean.temp_z"]])
@@ -1526,44 +1402,28 @@ attr(SPLU.climate.year$mean.temp_z, "scale")
 attr(SPLU.climate.year$mean.temp_z, "center")
 SPLU.effects$mean.temp = SPLU.effects$mean.temp_z*0.9048429+9.583333 
 
-COCA.climate.year.outlier = COCA.climate.year[c(1:11),]
+COCA.climate.year.outlier = COCA.climate.year[c(1:11,13,14),]
 
 COCA.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = COCA.climate.year.outlier)
 summary(COCA.LRR.climate.year.mod.outlier)
 check_normality(COCA.LRR.climate.year.mod.outlier)
 check_heteroscedasticity(COCA.LRR.climate.year.mod.outlier)
-check_collinearity(COCA.LRR.climate.year.mod.outlier)
+check_collinearity(COCA.LRR.climate.year.mod.outlier) # VIF 1.13
 check_autocorrelation(COCA.LRR.climate.year.mod.outlier) # autocorrelation
 
 COCA.outlier.effects = as.data.frame(allEffects(COCA.LRR.climate.year.mod.outlier)[["mean.temp_z"]])
 COCA.outlier.effects$Species = "COCA.out"
 attr(COCA.climate.year$mean.temp_z, "scale")
 attr(COCA.climate.year$mean.temp_z, "center")
-COCA.outlier.effects$mean.temp = COCA.outlier.effects$mean.temp_z*0.8757011+9.842207 
+COCA.outlier.effects$mean.temp = COCA.outlier.effects$mean.temp_z*0.9690648+10.01488 
 COCA.climate.year.outlier$Species = "COCA.out"
  
-CYRE.climate.year.outlier = CYRE.climate.year[c(1,3:23),]
-
-CYRE.LRR.climate.year.mod.outlier = lm(Corrected.LRR ~ total.ppt_z + mean.temp_z, data = CYRE.climate.year.outlier)
-summary(CYRE.LRR.climate.year.mod.outlier)
-check_normality(CYRE.LRR.climate.year.mod.outlier)
-check_heteroscedasticity(CYRE.LRR.climate.year.mod.outlier)
-check_collinearity(CYRE.LRR.climate.year.mod.outlier)
-check_autocorrelation(CYRE.LRR.climate.year.mod.outlier) # autocorrelated residuals
-
-CYRE.outlier.effects = as.data.frame(allEffects(CYRE.LRR.climate.year.mod.outlier)[["mean.temp_z"]])
-CYRE.outlier.effects$Species = "CYRE.out"
-attr(CYRE.climate.year$mean.temp_z, "scale")
-attr(CYRE.climate.year$mean.temp_z, "center")
-CYRE.outlier.effects$mean.temp = CYRE.outlier.effects$mean.temp_z*0.8788405+9.636272
-CYRE.climate.year.outlier$Species = "CYRE.out"
-
 # merge
 dfs.observed <- list(ARHI.climate.year, COCA.climate.year, CYRE.climate.year, SPLU.climate.year,
-            COCA.climate.year.outlier, CYRE.climate.year.outlier)
+            COCA.climate.year.outlier)
 all.observed <- bind_rows(dfs.observed)
 
-dfs.preds = list(ARHI.effects,COCA.effects,CYRE.effects,SPLU.effects,COCA.outlier.effects,CYRE.outlier.effects)
+dfs.preds = list(ARHI.effects,COCA.effects,CYRE.effects,SPLU.effects,COCA.outlier.effects)
 all.preds <- bind_rows(dfs.preds)
 
 # plot
@@ -1572,13 +1432,13 @@ climate.year.plot = ggplot(all.preds, aes(x = mean.temp, y = fit, color = Specie
   geom_point(data = all.observed, aes(x = mean.temp, y = Corrected.LRR, color = Species), 
              alpha = 0.5)+
   #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
-  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                "C. reginae", "C. reginae", "S. lucida"))+
+                                "C. reginae", "S. lucida"))+
   scale_linetype_manual(values = c("solid", "solid", "dashed",
-                                   "solid", "dashed", "solid"),
+                                   "solid", "solid"),
                         labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                   "C. reginae", "C. reginae", "S. lucida")) +
+                                   "C. reginae", "S. lucida")) +
   theme_classic(base_size = 20)+
   theme(legend.position = "none")+
   labs(x = "Average Mean Temperature (°C)", y = "Predicted Change in Log Population Size (LRR)")
@@ -1586,6 +1446,76 @@ climate.year.plot
 
 #ggsave(climate.year.plot, file = "./Plots/tmean.climate.year.plot.legend.pdf", height = 8, width = 8)
 #ggsave(climate.year.plot, file = "./Plots/tmean.climate.year.plot.pdf", height = 8, width = 8)
+
+# annual average snow
+
+ARHI.LRR.depth.mod = lm(Corrected.LRR ~ mean.yr.depth_z, data = ARHI.climate.year)
+summary(ARHI.LRR.depth.mod)
+check_normality(ARHI.LRR.depth.mod)
+check_heteroscedasticity(ARHI.LRR.depth.mod)
+check_autocorrelation(ARHI.LRR.depth.mod) # autocorrelated residuals
+ARHI.preds = predict(ARHI.LRR.depth.mod, interval = "confidence")
+ARHI.LRR.season = cbind(ARHI.climate.year,ARHI.preds)
+
+COCA.LRR.depth.mod = lm(Corrected.LRR ~ mean.yr.depth_z, data = COCA.climate.year)
+summary(COCA.LRR.depth.mod)
+check_normality(COCA.LRR.depth.mod) # not normal
+check_heteroscedasticity(COCA.LRR.depth.mod)
+check_autocorrelation(COCA.LRR.depth.mod) # autocorrelated residuals
+COCA.preds = predict(COCA.LRR.depth.mod, interval = "confidence")
+COCA.LRR.season = cbind(COCA.climate.year,COCA.preds)
+
+CYRE.LRR.depth.mod = lm(Corrected.LRR ~ mean.yr.depth_z, data = CYRE.climate.year)
+summary(CYRE.LRR.depth.mod)
+check_normality(CYRE.LRR.depth.mod)
+check_heteroscedasticity(CYRE.LRR.depth.mod)
+check_autocorrelation(CYRE.LRR.depth.mod) # autocorrelated residuals
+CYRE.preds = predict(CYRE.LRR.depth.mod, interval = "confidence")
+CYRE.LRR.season = cbind(CYRE.climate.year,CYRE.preds)
+
+SPLU.LRR.depth.mod = lm(Corrected.LRR ~ mean.yr.depth_z, data = SPLU.climate.year)
+summary(SPLU.LRR.depth.mod) # significant (positive)
+check_normality(SPLU.LRR.depth.mod)
+check_heteroscedasticity(SPLU.LRR.depth.mod) # non-constant error detected
+check_autocorrelation(SPLU.LRR.depth.mod)
+SPLU.preds = predict(SPLU.LRR.depth.mod, interval = "confidence")
+SPLU.LRR.season = cbind(SPLU.climate.year,SPLU.preds)
+
+COCA.LRR.depth.mod.outlier = lm(Corrected.LRR ~ mean.yr.depth_z, data = COCA.climate.year.outlier)
+summary(COCA.LRR.depth.mod.outlier)
+check_normality(COCA.LRR.depth.mod.outlier)
+check_heteroscedasticity(COCA.LRR.depth.mod.outlier)
+check_collinearity(COCA.LRR.depth.mod.outlier) # VIF 1.13
+check_autocorrelation(COCA.LRR.depth.mod.outlier) # autocorrelation
+COCA.preds.outlier = predict(COCA.LRR.depth.mod.outlier, interval = "confidence")
+COCA.LRR.season.outlier = cbind(COCA.climate.year.outlier,COCA.preds.outlier)
+COCA.LRR.season.outlier$Species = "COCA.out"
+
+# merge
+dfs.all <- list(ARHI.LRR.season, COCA.LRR.season, CYRE.LRR.season, SPLU.LRR.season,
+                COCA.LRR.season.outlier)
+all.season <- bind_rows(dfs.all)
+
+# plot
+snow.depth.plot = ggplot(all.season, aes(x = mean.yr.depth, y = fit, color = Species))+
+  geom_line(aes(linetype = Species), linewidth = 1)+
+  geom_point(aes(x = mean.yr.depth, y = Corrected.LRR, color = Species), 
+             alpha = 0.5)+
+  #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#35274A"),
+                     labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                "C. reginae", "S. lucida"))+
+  scale_linetype_manual(values = c("solid", "solid", "dashed",
+                                   "solid", "solid"),
+                        labels = c("A. hispida","C. canadensis", "C. canadensis",
+                                   "C. reginae", "S. lucida")) +
+  theme_classic(base_size = 20)+
+  theme(legend.position = "none")+
+  labs(x = "Average Snow Depth (mm)\n(November - February)", y = "Predicted Change in Log Population Size (LRR)")
+snow.depth.plot
+
+#ggsave(snow.depth.plot, file = "./Plots/snow.depth.plot.legend.pdf", height = 8, width = 8)
+#ggsave(snow.depth.plot, file = "./Plots/snow.depth.plot.plot.pdf", height = 8, width = 8)
 
 #### Seasonal climate Models ####
 LRR.seasonal.mod = lmer(Corrected.LRR ~ early.spring.temp_z + late.spring.temp_z +
@@ -1601,9 +1531,9 @@ COCA.LRR.season = split.LRR.season$COCA[,c(1:12)]
 CYRE.LRR.season = split.LRR.season$CYRE[,c(1:12)]
 SPLU.LRR.season = split.LRR.season$SPLU[,c(1:12)]
 
-cor.test(ARHI.LRR.season$winter.temp, ARHI.LRR.season$early.spring.temp)
-cor.test(COCA.LRR.season$winter.temp, COCA.LRR.season$early.spring.temp)
-cor.test(CYRE.LRR.season$winter.temp, CYRE.LRR.season$early.spring.temp) # P = 0.048
+cor.test(ARHI.LRR.season$winter.temp, ARHI.LRR.season$early.spring.temp) # p = 0.04
+cor.test(COCA.LRR.season$winter.temp, COCA.LRR.season$early.spring.temp) # p = 0.04
+cor.test(CYRE.LRR.season$winter.temp, CYRE.LRR.season$early.spring.temp) # P = 0.01
 cor.test(SPLU.LRR.season$winter.temp, SPLU.LRR.season$early.spring.temp)
 
 ARHI.LRR.season = standardise(ARHI.LRR.season, select = c("winter.temp","early.spring.temp",
@@ -1619,91 +1549,42 @@ SPLU.LRR.season = standardise(SPLU.LRR.season, select = c("winter.temp","early.s
                                                           "late.spring.temp","spring.ppt",
                                                           "non.spring.ppt"), append = TRUE)
 
-COCA.LRR.season.outlier = COCA.LRR.season[c(1:11),]
-CYRE.LRR.season.outlier = CYRE.LRR.season[c(1,3:23),]
+COCA.LRR.season.outlier = COCA.LRR.season[c(1:11,13,14),]
 
-cor.test(COCA.LRR.season.outlier$winter.temp,COCA.LRR.season.outlier$early.spring.temp)
-cor.test(CYRE.LRR.season.outlier$winter.temp,CYRE.LRR.season.outlier$early.spring.temp)
-
+cor.test(COCA.LRR.season.outlier$winter.temp,COCA.LRR.season.outlier$early.spring.temp) # p = 0.05
 
 ARHI.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = ARHI.LRR.season)
 summary(ARHI.early.spring.mod)
-ARHI.preds = predict(ARHI.early.spring.mod, interval = "confidence")
-ARHI.LRR.season = cbind(ARHI.LRR.season,ARHI.preds)
 
 COCA.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = COCA.LRR.season)
 summary(COCA.early.spring.mod)
-COCA.preds = predict(COCA.early.spring.mod, interval = "confidence")
-COCA.LRR.season = cbind(COCA.LRR.season,COCA.preds)
 
 CYRE.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = CYRE.LRR.season)
 summary(CYRE.early.spring.mod)
-CYRE.preds = predict(CYRE.early.spring.mod, interval = "confidence")
-CYRE.LRR.season = cbind(CYRE.LRR.season,CYRE.preds)
 
 SPLU.early.spring.mod = lm(Corrected.LRR ~ early.spring.temp_z, data = SPLU.LRR.season)
 summary(SPLU.early.spring.mod)
-SPLU.preds = predict(SPLU.early.spring.mod, interval = "confidence")
-SPLU.LRR.season = cbind(SPLU.LRR.season,SPLU.preds)
 
 COCA.early.spring.mod.outlier = lm(Corrected.LRR ~ early.spring.temp_z, data = COCA.LRR.season.outlier) # significant
 summary(COCA.early.spring.mod.outlier)
-COCA.preds.outlier = predict(COCA.early.spring.mod.outlier, interval = "confidence")
-COCA.LRR.season.outlier = cbind(COCA.LRR.season.outlier,COCA.preds.outlier)
-COCA.LRR.season.outlier$Species = "COCA.out"
-
-CYRE.early.spring.mod.outlier = lm(Corrected.LRR ~ early.spring.temp_z, data = CYRE.LRR.season.outlier)
-summary(CYRE.early.spring.mod.outlier)
-CYRE.preds.outlier = predict(CYRE.early.spring.mod.outlier, interval = "confidence")
-CYRE.LRR.season.outlier = cbind(CYRE.LRR.season.outlier,CYRE.preds.outlier)
-CYRE.LRR.season.outlier$Species = "CYRE.out"
-
-# merge
-dfs.all <- list(ARHI.LRR.season, COCA.LRR.season, CYRE.LRR.season, SPLU.LRR.season,
-                     COCA.LRR.season.outlier, CYRE.LRR.season.outlier)
-all.season <- bind_rows(dfs.all)
-
-# plot
-early.spring.plot = ggplot(all.season, aes(x = early.spring.temp, y = fit, color = Species))+
-  geom_line(aes(linetype = Species), linewidth = 1)+
-  geom_point(aes(x = early.spring.temp, y = Corrected.LRR, color = Species), 
-             alpha = 0.5)+
-  #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
-  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
-                     labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                "C. reginae", "C. reginae", "S. lucida"))+
-  scale_linetype_manual(values = c("solid", "solid", "dashed",
-                                   "solid", "dashed", "solid"),
-                        labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                   "C. reginae", "C. reginae", "S. lucida")) +
-  theme_classic(base_size = 20)+
-  theme(legend.position = "none")+
-  labs(x = "Average Early Spring Temperature (°C)\n(March - April)", y = "Predicted Change in Log Population Size (LRR)")
-early.spring.plot
-
-#ggsave(early.spring.plot, file = "./Plots/early.spring.climate.season.plot.legend.pdf", height = 8, width = 8)
-#ggsave(early.spring.plot, file = "./Plots/early.spring.climate.season.plot.pdf", height = 8, width = 8)
 
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = SPLU.LRR.season))
 summary(lm(Corrected.LRR ~ late.spring.temp_z, data = COCA.LRR.season.outlier))
-summary(lm(Corrected.LRR ~ late.spring.temp_z, data = CYRE.LRR.season.outlier))
 
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = SPLU.LRR.season))
 summary(lm(Corrected.LRR ~ spring.ppt_z, data = COCA.LRR.season.outlier))
-summary(lm(Corrected.LRR ~ spring.ppt_z, data = CYRE.LRR.season.outlier))
 
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = ARHI.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = COCA.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = CYRE.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = SPLU.LRR.season))
 summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = COCA.LRR.season.outlier))
-summary(lm(Corrected.LRR ~ non.spring.ppt_z, data = CYRE.LRR.season.outlier))
 
 # redo data so early spring fit is erased before these models
 
@@ -1733,15 +1614,9 @@ COCA.preds.outlier = predict(COCA.winter.mod.outlier, interval = "confidence")
 COCA.LRR.season.outlier = cbind(COCA.LRR.season.outlier,COCA.preds.outlier)
 COCA.LRR.season.outlier$Species = "COCA.out"
 
-CYRE.winter.mod.outlier = lm(Corrected.LRR ~ winter.temp_z, data = CYRE.LRR.season.outlier)
-summary(CYRE.winter.mod.outlier)
-CYRE.preds.outlier = predict(CYRE.winter.mod.outlier, interval = "confidence")
-CYRE.LRR.season.outlier = cbind(CYRE.LRR.season.outlier,CYRE.preds.outlier)
-CYRE.LRR.season.outlier$Species = "CYRE.out"
-
 # merge
 dfs.all <- list(ARHI.LRR.season, COCA.LRR.season, CYRE.LRR.season, SPLU.LRR.season,
-                COCA.LRR.season.outlier, CYRE.LRR.season.outlier)
+                COCA.LRR.season.outlier)
 all.winter <- bind_rows(dfs.all)
 
 # plot
@@ -1750,13 +1625,13 @@ winter.plot = ggplot(all.winter, aes(x = winter.temp, y = fit, color = Species))
   geom_point(aes(x = winter.temp, y = Corrected.LRR, color = Species), 
              alpha = 0.5)+
   #geom_ribbon(aes(ymin = lower, ymax = upper, color = Species), alpha = 0.2)+
-  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                "C. reginae", "C. reginae", "S. lucida"))+
+                                "C. reginae","S. lucida"))+
   scale_linetype_manual(values = c("solid", "solid", "dashed",
-                                   "solid", "dashed", "solid"),
+                                   "solid", "solid"),
                         labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                   "C. reginae", "C. reginae", "S. lucida")) +
+                                   "C. reginae", "S. lucida")) +
   theme_classic(base_size = 20)+
   theme(legend.position = "none")+
   labs(x = "Average Winter Temperature (°C)\n(December - February)", y = "Predicted Change in Log Population Size (LRR)")
@@ -1772,9 +1647,8 @@ climate.plots
 
 ggsave(climate.plots, file = "./Plots/climate.plot.top.pdf", height = 8, width = 8)
 
-
 bottom_row <- plot_grid(
-  winter.plot, early.spring.plot,
+  winter.plot, snow.depth.plot,
   labels = c("B.", "C."),
   ncol = 2,
   rel_widths = c(1, 1),
@@ -1797,27 +1671,22 @@ SPLU.cdf = read.csv("./Formatted.Data/SPLU.diff.graphing.csv", row.names = 1)
 SPLU.cdf$Species = "SPLU"
 COCA.out.cdf = read.csv("./Formatted.Data/COCA.outlier.diff.graphing.csv", row.names = 1)
 COCA.out.cdf$Species = "COCA.out"
-CYRE.out.cdf = read.csv("./Formatted.Data/CYRE.outlier.diff.graphing.csv", row.names = 1)
-CYRE.out.cdf$Year = 1:50
-CYRE.out.cdf$Species = "CYRE.out"
-SPLU.n.cdf = read.csv("./Formatted.Data/SPLU.diff.graphing.n2023.csv", row.names = 1)
-SPLU.n.cdf$Species = "SPLU.n"
 
 # merge
-dfs <- list(ARHI.cdf, COCA.cdf, CYRE.cdf, SPLU.cdf, COCA.out.cdf, CYRE.out.cdf)
+dfs <- list(ARHI.cdf, COCA.cdf, CYRE.cdf, SPLU.cdf, COCA.out.cdf)
 
 all.cdfs <- reduce(dfs, full_join)
 
 # plot
 cdf.outlier.plot = ggplot(all.cdfs, aes(x = Year, y = Gbest, color = Species))+
   geom_line(aes(linetype = Species), linewidth = 1)+
-  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                "C. reginae", "C. reginae", "S. lucida"))+
+                                "C. reginae", "S. lucida"))+
   scale_linetype_manual(values = c("solid", "solid", "dashed",
-                                   "solid", "dashed", "solid"),
+                                   "solid", "solid"),
                         labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                   "C. reginae", "C. reginae", "S. lucida")) +
+                                   "C. reginae", "S. lucida")) +
   theme_classic(base_size = 20)+
   labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction",
        title = "Diffusion Approximation")+
@@ -1846,12 +1715,9 @@ SPLU.sim$Year = 1:50
 COCA.out.sim = read.csv("./Formatted.Data/COCA.2.sim.cdf.csv",row.names = 1)
 COCA.out.sim$Species = "COCA.out"
 COCA.out.sim$Year = 1:50
-CYRE.out.sim = read.csv("./Formatted.Data/CYRE.2.sim.cdf.csv",row.names = 1)
-CYRE.out.sim$Species = "CYRE.out"
-CYRE.out.sim$Year = 1:50
 
 # merge
-dfs.sim <- list(ARHI.sim, COCA.sim, CYRE.sim, COCA.out.sim, CYRE.out.sim, SPLU.sim)
+dfs.sim <- list(ARHI.sim, COCA.sim, CYRE.sim, COCA.out.sim, SPLU.sim)
 
 all.sims <- reduce(dfs.sim, full_join)
 
@@ -1862,13 +1728,13 @@ ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
 # plot
 sim.outlier.plot = ggplot(all.sims, aes(x = Year, y = prob, color = Species))+
   geom_line(aes(linetype = Species), linewidth = 1)+
-  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#6C8645","#35274A"),
+  scale_color_manual(values = c("#0A9F9D","#E54E21","#E54E21","#6C8645","#35274A"),
                      labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                "C. reginae", "C. reginae", "S. lucida"))+
+                                "C. reginae", "S. lucida"))+
   scale_linetype_manual(values = c("solid", "solid", "dashed",
-                                   "solid", "dashed", "solid"),
+                                   "solid", "solid"),
                         labels = c("A. hispida","C. canadensis", "C. canadensis",
-                                   "C. reginae", "C. reginae", "S. lucida")) +
+                                   "C. reginae", "S. lucida")) +
   theme_classic(base_size = 20)+
   labs(x = "Years into the Future", y = "Cumulative Probability of Quasi-Extinction", 
        title = "Stochastic Simulation")+
