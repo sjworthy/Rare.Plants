@@ -1531,6 +1531,8 @@ COCA.LRR.season = split.LRR.season$COCA[,c(1:12)]
 CYRE.LRR.season = split.LRR.season$CYRE[,c(1:12)]
 SPLU.LRR.season = split.LRR.season$SPLU[,c(1:12)]
 
+cor.test(SPLU.climate.year$mean.yr.depth,SPLU.LRR.season$winter.temp)
+
 cor.test(ARHI.LRR.season$winter.temp, ARHI.LRR.season$early.spring.temp) # p = 0.04
 cor.test(COCA.LRR.season$winter.temp, COCA.LRR.season$early.spring.temp) # p = 0.04
 cor.test(CYRE.LRR.season$winter.temp, CYRE.LRR.season$early.spring.temp) # P = 0.01
